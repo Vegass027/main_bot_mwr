@@ -8,7 +8,7 @@ from aiogram.enums import ParseMode
 from dotenv import load_dotenv
 import os
 
-from bot.handlers import start_handler, tourist_handler, partner_handler, pro_handler, ai_designer_handler, ai_trainer_handler, content_maker_handler
+from bot.handlers import admin_handler, start_handler, tourist_handler, partner_handler, pro_handler, ai_designer_handler, ai_trainer_handler, content_maker_handler
 from bot.middlewares.database import DatabaseMiddleware
 from bot.middlewares.performance import PerformanceMiddleware
 from bot.database.database import init_db, engine
@@ -84,6 +84,7 @@ async def main():
     dp.update.outer_middleware(DatabaseMiddleware())
     
     # Регистрируем роутеры
+    dp.include_router(admin_handler.router)  # Админ-панель
     dp.include_router(start_handler.router)
     dp.include_router(tourist_handler.router)
     dp.include_router(partner_handler.router)
