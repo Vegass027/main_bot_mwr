@@ -23,11 +23,8 @@ from bot.database.models import Base
 
 target_metadata = Base.metadata
 
-# Get the database URL from the environment and make it sync
-db_url = os.environ.get("DATABASE_URL")
-if db_url and db_url.startswith("postgresql+asyncpg"):
-    db_url = db_url.replace("+asyncpg", "")
-config.set_main_option("sqlalchemy.url", db_url)
+# The sqlalchemy.url is already set in alembic.ini from the DATABASE_URL
+# environment variable, so no extra configuration is needed here.
 
 
 def run_migrations_offline() -> None:
