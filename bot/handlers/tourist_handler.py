@@ -1,7 +1,7 @@
 import asyncio
 
 from aiogram import Router, F
-from aiogram.types import CallbackQuery, InlineKeyboardButton, WebAppInfo
+from aiogram.types import CallbackQuery, InlineKeyboardButton, InlineKeyboardMarkup, WebAppInfo
 from aiogram.fsm.context import FSMContext
 from sqlalchemy.ext.asyncio import AsyncSession
 from aiogram.exceptions import TelegramBadRequest
@@ -130,7 +130,7 @@ async def travel_pay_less(callback: CallbackQuery, state: FSMContext, session: A
     
     # Отправляем кнопку
     await callback.message.answer(
-        "Жду тебя в клубе!❤️‍🔥",
+        "Ты должен это увидеть🤯",
         reply_markup=InlineKeyboardMarkup(inline_keyboard=[
             [InlineKeyboardButton(text="🔍 Показать примеры цен", web_app=WebAppInfo(url="https://clubsmarttravel.vercel.app/travel"))]
         ])
@@ -189,7 +189,7 @@ async def travel_5star_3star(callback: CallbackQuery, state: FSMContext, session
     
     # Отправляем кнопку
     await callback.message.answer(
-        "Жду тебя в клубе!❤️‍🔥",
+        "Ты только глянь🤩",
         reply_markup=InlineKeyboardMarkup(inline_keyboard=[
             [InlineKeyboardButton(text="💎 Показать премиум отдых", web_app=WebAppInfo(url="https://clubsmarttravel.vercel.app/travel"))]
         ])
@@ -248,7 +248,7 @@ async def travel_more(callback: CallbackQuery, state: FSMContext, session: Async
     
     # Отправляем кнопку
     await callback.message.answer(
-        "Жду тебя в клубе!❤️‍🔥",
+        "Смотри👀",
         reply_markup=InlineKeyboardMarkup(inline_keyboard=[
             [InlineKeyboardButton(text="✈️ Как это работает?", web_app=WebAppInfo(url="https://clubsmarttravel.vercel.app/travel"))]
         ])

@@ -64,7 +64,7 @@ async def cmd_start(message: Message, state: FSMContext, session: AsyncSession):
         if user.subscription_status == 'PRO':
             # Для PRO пользователей - краткое приветствие
             await message.answer(
-                "Привет, как успехи партнер? Чем займемся?",
+                "**Привет, как успехи?n\nЧем займемся?👀",
                 reply_markup=get_pro_menu()
             )
         else:
