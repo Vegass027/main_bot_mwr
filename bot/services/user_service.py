@@ -176,15 +176,6 @@ class UserService:
         )
         # НЕ делаем commit
     
-    @staticmethod
-    async def update_voice_travel(session: AsyncSession, telegram_id: str, voice_id: str):
-        """Обновить ID голосового для ветки Путешествия"""
-        await session.execute(
-            update(User)
-            .where(User.telegram_id == telegram_id)
-            .values(voice_free_travel_id=voice_id)
-        )
-        # НЕ делаем commit
     
     @staticmethod
     async def update_voice_freedom(session: AsyncSession, telegram_id: str, voice_id: str):

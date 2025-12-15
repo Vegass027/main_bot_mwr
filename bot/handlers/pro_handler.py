@@ -237,17 +237,17 @@ _Ну то есть, вместо обычной гостиницы — взят
         else:
             # Если другая ошибка BadRequest, пробрасываем дальше
             raise
-    await state.set_state(UserStates.awaiting_travel_voice)
+    await state.set_state(UserStates.awaiting_travel_more_voice)
     await callback.answer()
 
-@router.message(UserStates.awaiting_travel_voice, F.voice)
+@router.message(UserStates.awaiting_travel_more_voice, F.voice)
 async def save_travel_voice(message: Message, state: FSMContext, session: AsyncSession):
     """Сохранение голосового для ветки Путешествия"""
     
     telegram_id = str(message.from_user.id)
     voice_id = message.voice.file_id
     
-    await UserService.update_voice_travel(session, telegram_id, voice_id)
+    await UserService.update_voice_travel_more(session, telegram_id, voice_id)
     
     await message.answer_voice(voice=voice_id)
     await message.answer(
@@ -258,7 +258,7 @@ async def save_travel_voice(message: Message, state: FSMContext, session: AsyncS
     
     await state.set_state(UserStates.pro_menu)
 
-@router.message(UserStates.awaiting_travel_voice)
+@router.message(UserStates.awaiting_travel_more_voice)
 async def wrong_travel_voice_type(message: Message):
     """Обработка неверного типа контента"""
     
