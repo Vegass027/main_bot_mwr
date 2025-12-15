@@ -2,6 +2,7 @@ from aiogram import Router, F
 from aiogram.types import CallbackQuery, Message
 from aiogram.fsm.context import FSMContext
 from sqlalchemy.ext.asyncio import AsyncSession
+from aiogram.exceptions import TelegramBadRequest
 
 from bot.keyboards.keyboards import (
     get_personalization_menu,
@@ -27,17 +28,25 @@ async def personalization_menu(callback: CallbackQuery, state: FSMContext, sessi
 
 Выбери этап для записи:"""
     
-    await callback.message.edit_text(
-        menu_text,
-        reply_markup=get_personalization_menu(
-            has_welcome=bool(user.welcome_video_id),
-            has_passive_income=bool(user.voice_passive_income_id),
-            has_travel=bool(user.voice_free_travel_id),
-            has_freedom=bool(user.voice_freedom_id),
-            has_final=bool(user.voice_final_cta_id)
-        ),
-        parse_mode="Markdown"
-    )
+    try:
+        await callback.message.edit_text(
+            menu_text,
+            reply_markup=get_personalization_menu(
+                has_welcome=bool(user.welcome_video_id),
+                has_passive_income=bool(user.voice_passive_income_id),
+                has_travel=bool(user.voice_free_travel_id),
+                has_freedom=bool(user.voice_freedom_id),
+                has_final=bool(user.voice_final_cta_id)
+            ),
+            parse_mode="Markdown"
+        )
+    except TelegramBadRequest as e:
+        if "message is not modified" in str(e):
+            # Если сообщение не изменилось, просто отправляем ответ на callback
+            await callback.answer("Меню персонализации", show_alert=False)
+        else:
+            # Если другая ошибка BadRequest, пробрасываем дальше
+            raise
     await state.set_state(UserStates.personalization_menu)
     await callback.answer()
 
@@ -59,11 +68,19 @@ async def upload_welcome_video_prompt(callback: CallbackQuery, state: FSMContext
 
 ⏳ **Жду твой кружочек...**"""
     
-    await callback.message.edit_text(
-        prompt_text,
-        reply_markup=get_back_to_personalization(),
-        parse_mode="Markdown"
-    )
+    try:
+        await callback.message.edit_text(
+            prompt_text,
+            reply_markup=get_back_to_personalization(),
+            parse_mode="Markdown"
+        )
+    except TelegramBadRequest as e:
+        if "message is not modified" in str(e):
+            # Если сообщение не изменилось, просто отправляем ответ на callback
+            await callback.answer("Запись приветствия", show_alert=False)
+        else:
+            # Если другая ошибка BadRequest, пробрасываем дальше
+            raise
     await state.set_state(UserStates.awaiting_welcome_video)
     await callback.answer()
 
@@ -114,11 +131,19 @@ _'Слушай, я сам пришел сюда именно за деньгам
 
 ⏳ **Жду голосовое...**"""
     
-    await callback.message.edit_text(
-        prompt_text,
-        reply_markup=get_back_to_personalization(),
-        parse_mode="Markdown"
-    )
+    try:
+        await callback.message.edit_text(
+            prompt_text,
+            reply_markup=get_back_to_personalization(),
+            parse_mode="Markdown"
+        )
+    except TelegramBadRequest as e:
+        if "message is not modified" in str(e):
+            # Если сообщение не изменилось, просто отправляем ответ на callback
+            await callback.answer("Запись 'Деньги'", show_alert=False)
+        else:
+            # Если другая ошибка BadRequest, пробрасываем дальше
+            raise
     await state.set_state(UserStates.awaiting_passive_income_voice)
     await callback.answer()
 
@@ -163,11 +188,19 @@ _'Раньше я думал, что отели 5 звезд — это доро
 
 ⏳ **Жду голосовое...**"""
     
-    await callback.message.edit_text(
-        prompt_text,
-        reply_markup=get_back_to_personalization(),
-        parse_mode="Markdown"
-    )
+    try:
+        await callback.message.edit_text(
+            prompt_text,
+            reply_markup=get_back_to_personalization(),
+            parse_mode="Markdown"
+        )
+    except TelegramBadRequest as e:
+        if "message is not modified" in str(e):
+            # Если сообщение не изменилось, просто отправляем ответ на callback
+            await callback.answer("Запись 'Путешествия'", show_alert=False)
+        else:
+            # Если другая ошибка BadRequest, пробрасываем дальше
+            raise
     await state.set_state(UserStates.awaiting_travel_voice)
     await callback.answer()
 
@@ -212,11 +245,19 @@ _'Я прекрасно понимаю чувство, когда живешь �
 
 ⏳ **Жду голосовое...**"""
     
-    await callback.message.edit_text(
-        prompt_text,
-        reply_markup=get_back_to_personalization(),
-        parse_mode="Markdown"
-    )
+    try:
+        await callback.message.edit_text(
+            prompt_text,
+            reply_markup=get_back_to_personalization(),
+            parse_mode="Markdown"
+        )
+    except TelegramBadRequest as e:
+        if "message is not modified" in str(e):
+            # Если сообщение не изменилось, просто отправляем ответ на callback
+            await callback.answer("Запись 'Свобода'", show_alert=False)
+        else:
+            # Если другая ошибка BadRequest, пробрасываем дальше
+            raise
     await state.set_state(UserStates.awaiting_freedom_voice)
     await callback.answer()
 
@@ -262,11 +303,19 @@ _'Короче, система полностью готова. Я уже вну
 
 ⏳ **Жду голосовое...**"""
     
-    await callback.message.edit_text(
-        prompt_text,
-        reply_markup=get_back_to_personalization(),
-        parse_mode="Markdown"
-    )
+    try:
+        await callback.message.edit_text(
+            prompt_text,
+            reply_markup=get_back_to_personalization(),
+            parse_mode="Markdown"
+        )
+    except TelegramBadRequest as e:
+        if "message is not modified" in str(e):
+            # Если сообщение не изменилось, просто отправляем ответ на callback
+            await callback.answer("Запись финала", show_alert=False)
+        else:
+            # Если другая ошибка BadRequest, пробрасываем дальше
+            raise
     await state.set_state(UserStates.awaiting_final_voice)
     await callback.answer()
 
@@ -323,11 +372,19 @@ async def radar_view(callback: CallbackQuery, state: FSMContext, session: AsyncS
                 time_ago = _format_time_ago(event.created_at)
                 radar_text += f"{idx}. **{lead_name}** — _{event.action_type}_ ({time_ago})\n"
     
-    await callback.message.edit_text(
-        radar_text,
-        reply_markup=get_back_to_pro_menu(),
-        parse_mode="Markdown"
-    )
+    try:
+        await callback.message.edit_text(
+            radar_text,
+            reply_markup=get_back_to_pro_menu(),
+            parse_mode="Markdown"
+        )
+    except TelegramBadRequest as e:
+        if "message is not modified" in str(e):
+            # Если сообщение не изменилось, просто отправляем ответ на callback
+            await callback.answer("Радар активности", show_alert=False)
+        else:
+            # Если другая ошибка BadRequest, пробрасываем дальше
+            raise
     await state.set_state(UserStates.radar_view)
     await callback.answer()
 

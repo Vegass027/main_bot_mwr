@@ -2,6 +2,7 @@ from aiogram import Router, F
 from aiogram.types import CallbackQuery, Message, InlineKeyboardMarkup, InlineKeyboardButton, InputMediaPhoto
 from aiogram.fsm.context import FSMContext
 from sqlalchemy.ext.asyncio import AsyncSession
+from aiogram.exceptions import TelegramBadRequest
 
 
 from bot.keyboards.keyboards import get_back_to_pro_menu, get_ai_designer_menu, get_ai_designer_control_panel
@@ -59,9 +60,13 @@ async def ai_designer_start(callback: CallbackQuery, state: FSMContext, session:
             reply_markup=get_ai_designer_menu(),
             parse_mode="Markdown"
         )
-    except Exception:
-        # Игнорируем ошибку если сообщение не изменилось
-        pass
+    except TelegramBadRequest as e:
+        if "message is not modified" in str(e):
+            # Если сообщение не изменилось, просто отправляем ответ на callback
+            await callback.answer("Вы в AI-Дизайнере", show_alert=False)
+        else:
+            # Если другая ошибка BadRequest, пробрасываем дальше
+            raise
     
     await state.set_state(UserStates.ai_designer_active)
     await callback.answer()

@@ -2,6 +2,7 @@ from aiogram import Router, F
 from aiogram.types import CallbackQuery
 from aiogram.fsm.context import FSMContext
 from sqlalchemy.ext.asyncio import AsyncSession
+from aiogram.exceptions import TelegramBadRequest
 
 from bot.keyboards.keyboards import get_tourist_menu, get_tourist_back_menu
 from bot.services.user_service import UserService
@@ -50,10 +51,18 @@ async def tourist_menu(callback: CallbackQuery, state: FSMContext, session: Asyn
             action_type="Нажал 'Путешествия'"
         )
     
-    await callback.message.edit_text(
-        TOURIST_INTRO,
-        reply_markup=get_tourist_menu()
-    )
+    try:
+        await callback.message.edit_text(
+            TOURIST_INTRO,
+            reply_markup=get_tourist_menu()
+        )
+    except TelegramBadRequest as e:
+        if "message is not modified" in str(e):
+            # Если сообщение не изменилось, просто отправляем ответ на callback
+            await callback.answer("Меню туриста", show_alert=False)
+        else:
+            # Если другая ошибка BadRequest, пробрасываем дальше
+            raise
     await state.set_state(UserStates.tourist_menu)
     await callback.answer()
 
@@ -61,10 +70,18 @@ async def tourist_menu(callback: CallbackQuery, state: FSMContext, session: Asyn
 async def tourist_why_cheaper(callback: CallbackQuery, state: FSMContext):
     """Ответ: Почему дешевле?"""
     
-    await callback.message.edit_text(
-        TOURIST_WHY_CHEAPER,
-        reply_markup=get_tourist_back_menu()
-    )
+    try:
+        await callback.message.edit_text(
+            TOURIST_WHY_CHEAPER,
+            reply_markup=get_tourist_back_menu()
+        )
+    except TelegramBadRequest as e:
+        if "message is not modified" in str(e):
+            # Если сообщение не изменилось, просто отправляем ответ на callback
+            await callback.answer("Почему дешевле", show_alert=False)
+        else:
+            # Если другая ошибка BadRequest, пробрасываем дальше
+            raise
     await state.set_state(UserStates.tourist_why_cheaper)
     await callback.answer()
 
@@ -72,10 +89,18 @@ async def tourist_why_cheaper(callback: CallbackQuery, state: FSMContext):
 async def tourist_legal(callback: CallbackQuery, state: FSMContext):
     """Ответ: Легально ли это?"""
     
-    await callback.message.edit_text(
-        TOURIST_LEGAL,
-        reply_markup=get_tourist_back_menu()
-    )
+    try:
+        await callback.message.edit_text(
+            TOURIST_LEGAL,
+            reply_markup=get_tourist_back_menu()
+        )
+    except TelegramBadRequest as e:
+        if "message is not modified" in str(e):
+            # Если сообщение не изменилось, просто отправляем ответ на callback
+            await callback.answer("Легальность", show_alert=False)
+        else:
+            # Если другая ошибка BadRequest, пробрасываем дальше
+            raise
     await state.set_state(UserStates.tourist_legal)
     await callback.answer()
 
@@ -83,10 +108,18 @@ async def tourist_legal(callback: CallbackQuery, state: FSMContext):
 async def tourist_example(callback: CallbackQuery, state: FSMContext):
     """Ответ: Пример экономии"""
     
-    await callback.message.edit_text(
-        TOURIST_EXAMPLE,
-        reply_markup=get_tourist_back_menu()
-    )
+    try:
+        await callback.message.edit_text(
+            TOURIST_EXAMPLE,
+            reply_markup=get_tourist_back_menu()
+        )
+    except TelegramBadRequest as e:
+        if "message is not modified" in str(e):
+            # Если сообщение не изменилось, просто отправляем ответ на callback
+            await callback.answer("Пример экономии", show_alert=False)
+        else:
+            # Если другая ошибка BadRequest, пробрасываем дальше
+            raise
     await state.set_state(UserStates.tourist_example)
     await callback.answer()
 
@@ -101,10 +134,18 @@ async def tourist_consultant(callback: CallbackQuery, state: FSMContext, session
     referrer = await UserService.get_referrer(session, user)
     
     if not referrer:
-        await callback.message.edit_text(
-            "К сожалению, информация о консультанте недоступна.",
-            reply_markup=get_tourist_back_menu()
-        )
+        try:
+            await callback.message.edit_text(
+                "К сожалению, информация о консультанте недоступна.",
+                reply_markup=get_tourist_back_menu()
+            )
+        except TelegramBadRequest as e:
+            if "message is not modified" in str(e):
+                # Если сообщение не изменилось, просто отправляем ответ на callback
+                await callback.answer("Консультант недоступен", show_alert=False)
+            else:
+                # Если другая ошибка BadRequest, пробрасываем дальше
+                raise
         await callback.answer()
         return
     
@@ -132,9 +173,17 @@ async def tourist_consultant(callback: CallbackQuery, state: FSMContext, session
             action_type="Запросил контакты консультанта"
         )
     
-    await callback.message.edit_text(
-        consultant_text,
-        reply_markup=get_tourist_back_menu()
-    )
+    try:
+        await callback.message.edit_text(
+            consultant_text,
+            reply_markup=get_tourist_back_menu()
+        )
+    except TelegramBadRequest as e:
+        if "message is not modified" in str(e):
+            # Если сообщение не изменилось, просто отправляем ответ на callback
+            await callback.answer("Контакты консультанта", show_alert=False)
+        else:
+            # Если другая ошибка BadRequest, пробрасываем дальше
+            raise
     await state.set_state(UserStates.tourist_consultant)
     await callback.answer()

@@ -7,6 +7,7 @@ import logging
 import os
 import tempfile
 import asyncio
+from aiogram.exceptions import TelegramBadRequest
 
 from bot.keyboards.keyboards import (
     get_ai_trainer_menu,
@@ -53,11 +54,19 @@ async def trainer_start(callback: CallbackQuery, state: FSMContext, session: Asy
 
 Выберите первого соперника в библиотеке 👇🏻"""
     
-    await callback.message.edit_text(
-        welcome_text,
-        reply_markup=get_ai_trainer_menu(),
-        parse_mode='Markdown'
-    )
+    try:
+        await callback.message.edit_text(
+            welcome_text,
+            reply_markup=get_ai_trainer_menu(),
+            parse_mode='Markdown'
+        )
+    except TelegramBadRequest as e:
+        if "message is not modified" in str(e):
+            # Если сообщение не изменилось, просто отправляем ответ на callback
+            await callback.answer("AI-Тренажер", show_alert=False)
+        else:
+            # Если другая ошибка BadRequest, пробрасываем дальше
+            raise
     await state.set_state(UserStates.ai_trainer_menu)
     await callback.answer()
 
@@ -74,11 +83,19 @@ async def trainer_library(callback: CallbackQuery, state: FSMContext, session: A
     opponents = await AITrainerService.get_opponents_by_difficulty(session)
     
     if not opponents:
-        await callback.message.edit_text(
-            "📚 **Библиотека соперников пуста**\n\nСоперники скоро появятся!",
-            reply_markup=get_back_to_pro_menu(),
-            parse_mode='Markdown'
-        )
+        try:
+            await callback.message.edit_text(
+                "📚 **Библиотека соперников пуста**\n\nСоперники скоро появятся!",
+                reply_markup=get_back_to_pro_menu(),
+                parse_mode='Markdown'
+            )
+        except TelegramBadRequest as e:
+            if "message is not modified" in str(e):
+                # Если сообщение не изменилось, просто отправляем ответ на callback
+                await callback.answer("Библиотека пуста", show_alert=False)
+            else:
+                # Если другая ошибка BadRequest, пробрасываем дальше
+                raise
         await callback.answer()
         return
     
@@ -105,11 +122,19 @@ async def trainer_library(callback: CallbackQuery, state: FSMContext, session: A
         if 'эксперт' in grouped:
             text += f"🟣 Эксперт: {len(grouped['эксперт'])}\n"
     
-    await callback.message.edit_text(
-        text,
-        reply_markup=get_opponent_list_keyboard(opponents),
-        parse_mode='Markdown'
-    )
+    try:
+        await callback.message.edit_text(
+            text,
+            reply_markup=get_opponent_list_keyboard(opponents),
+            parse_mode='Markdown'
+        )
+    except TelegramBadRequest as e:
+        if "message is not modified" in str(e):
+            # Если сообщение не изменилось, просто отправляем ответ на callback
+            await callback.answer("Библиотека соперников", show_alert=False)
+        else:
+            # Если другая ошибка BadRequest, пробрасываем дальше
+            raise
     await state.set_state(UserStates.ai_trainer_library)
     await callback.answer()
 
@@ -125,11 +150,19 @@ async def show_opponent_card(callback: CallbackQuery, state: FSMContext, session
     
     card_text = format_opponent_card(opponent)
     
-    await callback.message.edit_text(
-        card_text,
-        reply_markup=get_opponent_card_keyboard(opponent['id']),
-        parse_mode='Markdown'
-    )
+    try:
+        await callback.message.edit_text(
+            card_text,
+            reply_markup=get_opponent_card_keyboard(opponent['id']),
+            parse_mode='Markdown'
+        )
+    except TelegramBadRequest as e:
+        if "message is not modified" in str(e):
+            # Если сообщение не изменилось, просто отправляем ответ на callback
+            await callback.answer("Карточка соперника", show_alert=False)
+        else:
+            # Если другая ошибка BadRequest, пробрасываем дальше
+            raise
     await callback.answer()
 
 def format_opponent_card(opponent: dict) -> str:
@@ -193,11 +226,19 @@ async def trainer_start_confirm(callback: CallbackQuery, state: FSMContext, sess
     text += f"Сложность: {emoji} {opponent['difficulty'].capitalize()}\n\n"
     text += "Готовы начать? AI войдет в роль немедленно."
     
-    await callback.message.edit_text(
-        text,
-        reply_markup=get_training_confirm_keyboard(opponent_id),
-        parse_mode='Markdown'
-    )
+    try:
+        await callback.message.edit_text(
+            text,
+            reply_markup=get_training_confirm_keyboard(opponent_id),
+            parse_mode='Markdown'
+        )
+    except TelegramBadRequest as e:
+        if "message is not modified" in str(e):
+            # Если сообщение не изменилось, просто отправляем ответ на callback
+            await callback.answer("Подтверждение тренировки", show_alert=False)
+        else:
+            # Если другая ошибка BadRequest, пробрасываем дальше
+            raise
     await callback.answer()
 
 @router.callback_query(F.data.startswith("trainer_confirm_"))
@@ -243,10 +284,18 @@ async def trainer_confirm_start(callback: CallbackQuery, state: FSMContext, sess
     text += "─────────────────────────────\n"
     text += "💬 Отвечайте текстом или 🎤 голосовым сообщением"
     
-    await callback.message.edit_text(
-        text,
-        parse_mode='Markdown'
-    )
+    try:
+        await callback.message.edit_text(
+            text,
+            parse_mode='Markdown'
+        )
+    except TelegramBadRequest as e:
+        if "message is not modified" in str(e):
+            # Если сообщение не изменилось, просто отправляем ответ на callback
+            await callback.answer("Тренировка началась", show_alert=False)
+        else:
+            # Если другая ошибка BadRequest, пробрасываем дальше
+            raise
     
     # Сохраняем первое сообщение AI
     await AITrainerService.add_message_to_session(
@@ -428,10 +477,18 @@ async def trainer_end_session(callback: CallbackQuery, state: FSMContext, sessio
     session_id = callback.data.replace("trainer_end_", "")
     
     # Показываем индикатор анализа
-    await callback.message.edit_text(
-        "⏳ **Анализирую вашу тренировку...**\n\nЭто может занять несколько секунд",
-        parse_mode='Markdown'
-    )
+    try:
+        await callback.message.edit_text(
+            "⏳ **Анализирую вашу тренировку...**\n\nЭто может занять несколько секунд",
+            parse_mode='Markdown'
+        )
+    except TelegramBadRequest as e:
+        if "message is not modified" in str(e):
+            # Если сообщение не изменилось, просто отправляем ответ на callback
+            await callback.answer("Анализ тренировки", show_alert=False)
+        else:
+            # Если другая ошибка BadRequest, пробрасываем дальше
+            raise
     await callback.answer()
     
     # Получаем данные сессии
@@ -439,32 +496,56 @@ async def trainer_end_session(callback: CallbackQuery, state: FSMContext, sessio
     opponent_id = data.get('opponent_id')
     
     if not opponent_id:
-        await callback.message.edit_text(
-            "❌ Ошибка: не удалось найти данные соперника",
-            reply_markup=get_back_to_pro_menu(),
-            parse_mode='Markdown'
-        )
+        try:
+            await callback.message.edit_text(
+                "❌ Ошибка: не удалось найти данные соперника",
+                reply_markup=get_back_to_pro_menu(),
+                parse_mode='Markdown'
+            )
+        except TelegramBadRequest as e:
+            if "message is not modified" in str(e):
+                # Если сообщение не изменилось, просто отправляем ответ на callback
+                await callback.answer("Ошибка соперника", show_alert=False)
+            else:
+                # Если другая ошибка BadRequest, пробрасываем дальше
+                raise
         return
     
     # Получаем соперника
     opponent = await AITrainerService.get_opponent_by_id(session, opponent_id)
     if not opponent:
-        await callback.message.edit_text(
-            "❌ Ошибка: соперник не найден",
-            reply_markup=get_back_to_pro_menu(),
-            parse_mode='Markdown'
-        )
+        try:
+            await callback.message.edit_text(
+                "❌ Ошибка: соперник не найден",
+                reply_markup=get_back_to_pro_menu(),
+                parse_mode='Markdown'
+            )
+        except TelegramBadRequest as e:
+            if "message is not modified" in str(e):
+                # Если сообщение не изменилось, просто отправляем ответ на callback
+                await callback.answer("Соперник не найден", show_alert=False)
+            else:
+                # Если другая ошибка BadRequest, пробрасываем дальше
+                raise
         return
     
     # Получаем историю диалога
     conversation_history = await AITrainerService.get_session_history(session, session_id, limit=100)
     
     if not conversation_history or len(conversation_history) < 2:
-        await callback.message.edit_text(
-            "❌ Недостаточно сообщений для анализа\n\nМинимум 2 сообщения",
-            reply_markup=get_back_to_pro_menu(),
-            parse_mode='Markdown'
-        )
+        try:
+            await callback.message.edit_text(
+                "❌ Недостаточно сообщений для анализа\n\nМинимум 2 сообщения",
+                reply_markup=get_back_to_pro_menu(),
+                parse_mode='Markdown'
+            )
+        except TelegramBadRequest as e:
+            if "message is not modified" in str(e):
+                # Если сообщение не изменилось, просто отправляем ответ на callback
+                await callback.answer("Недостаточно сообщений", show_alert=False)
+            else:
+                # Если другая ошибка BadRequest, пробрасываем дальше
+                raise
         return
     
     # Запускаем AI-анализ
@@ -518,11 +599,19 @@ async def trainer_end_session(callback: CallbackQuery, state: FSMContext, sessio
         analysis_result
     )
     
-    await callback.message.edit_text(
-        text,
-        reply_markup=get_training_results_keyboard(opponent_id),
-        parse_mode='Markdown'
-    )
+    try:
+        await callback.message.edit_text(
+            text,
+            reply_markup=get_training_results_keyboard(opponent_id),
+            parse_mode='Markdown'
+        )
+    except TelegramBadRequest as e:
+        if "message is not modified" in str(e):
+            # Если сообщение не изменилось, просто отправляем ответ на callback
+            await callback.answer("Результаты тренировки", show_alert=False)
+        else:
+            # Если другая ошибка BadRequest, пробрасываем дальше
+            raise
     
     await state.clear()
     await callback.answer("✅ Анализ готов!")
@@ -611,9 +700,17 @@ async def trainer_statistics(callback: CallbackQuery, state: FSMContext, session
         text += "💡 Начните первую тренировку!\n"
         text += "Выберите соперника из библиотеки 👇🏻"
     
-    await callback.message.edit_text(
-        text,
-        reply_markup=get_ai_trainer_menu(),
-        parse_mode='Markdown'
-    )
+    try:
+        await callback.message.edit_text(
+            text,
+            reply_markup=get_ai_trainer_menu(),
+            parse_mode='Markdown'
+        )
+    except TelegramBadRequest as e:
+        if "message is not modified" in str(e):
+            # Если сообщение не изменилось, просто отправляем ответ на callback
+            await callback.answer("Статистика", show_alert=False)
+        else:
+            # Если другая ошибка BadRequest, пробрасываем дальше
+            raise
     await callback.answer()

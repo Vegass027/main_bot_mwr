@@ -3,6 +3,7 @@ from aiogram.filters import CommandStart, Command
 from aiogram.types import Message, CallbackQuery, FSInputFile
 from aiogram.fsm.context import FSMContext
 from sqlalchemy.ext.asyncio import AsyncSession
+from aiogram.exceptions import TelegramBadRequest
 
 from bot.keyboards.keyboards import get_guest_menu, get_pro_menu
 from bot.services.user_service import UserService
@@ -87,10 +88,18 @@ async def back_to_main_menu(callback: CallbackQuery, state: FSMContext, session:
     telegram_id = str(callback.from_user.id)
     user = await UserService.get_user_by_telegram_id(session, telegram_id)
     
-    await callback.message.edit_text(
-        "Что вас интересует?",
-        reply_markup=get_guest_menu() if user.subscription_status == 'FREE' else get_pro_menu()
-    )
+    try:
+        await callback.message.edit_text(
+            "Что вас интересует?",
+            reply_markup=get_guest_menu() if user.subscription_status == 'FREE' else get_pro_menu()
+        )
+    except TelegramBadRequest as e:
+        if "message is not modified" in str(e):
+            # Если сообщение не изменилось, просто отправляем ответ на callback
+            await callback.answer("Вы в главном меню", show_alert=False)
+        else:
+            # Если другая ошибка BadRequest, пробрасываем дальше
+            raise
     
     if user.subscription_status == 'FREE':
         await state.set_state(UserStates.guest_menu)
@@ -103,10 +112,18 @@ async def back_to_main_menu(callback: CallbackQuery, state: FSMContext, session:
 async def back_to_pro_menu(callback: CallbackQuery, state: FSMContext):
     """Возврат в PRO меню"""
     
-    await callback.message.edit_text(
-        "С возвращением, Партнер! Твои инструменты готовы.",
-        reply_markup=get_pro_menu()
-    )
+    try:
+        await callback.message.edit_text(
+            "С возвращением, Партнер! Твои инструменты готовы.",
+            reply_markup=get_pro_menu()
+        )
+    except TelegramBadRequest as e:
+        if "message is not modified" in str(e):
+            # Если сообщение не изменилось, просто отправляем ответ на callback
+            await callback.answer("Вы в PRO меню", show_alert=False)
+        else:
+            # Если другая ошибка BadRequest, пробрасываем дальше
+            raise
     await state.set_state(UserStates.pro_menu)
     await callback.answer()
 
@@ -135,10 +152,18 @@ async def show_referral_link(callback: CallbackQuery, session: AsyncSession):
     
     text = f"🔗 Ваша реферальная ссылка:\n\n`{referral_link}`\n\n📊 Статистика:\n\n→ Приглашенных пользователей: {total_referrals}"
     
-    await callback.message.edit_text(
-        text,
-        reply_markup=get_pro_menu(),
-        parse_mode="Markdown",
-        disable_web_page_preview=True
-    )
+    try:
+        await callback.message.edit_text(
+            text,
+            reply_markup=get_pro_menu(),
+            parse_mode="Markdown",
+            disable_web_page_preview=True
+        )
+    except TelegramBadRequest as e:
+        if "message is not modified" in str(e):
+            # Если сообщение не изменилось, просто отправляем ответ на callback
+            await callback.answer("Ваша реферальная ссылка:", show_alert=False)
+        else:
+            # Если другая ошибка BadRequest, пробрасываем дальше
+            raise
     await callback.answer()

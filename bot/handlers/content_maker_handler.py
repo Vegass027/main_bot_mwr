@@ -9,6 +9,7 @@ from aiogram import Router, F
 from aiogram.types import Message, CallbackQuery, FSInputFile
 from aiogram.fsm.context import FSMContext
 from sqlalchemy.ext.asyncio import AsyncSession
+from aiogram.exceptions import TelegramBadRequest
 
 from bot.utils.states import ContentMakerStates
 from bot.keyboards.keyboards import (
@@ -97,7 +98,15 @@ async def content_maker_entry(callback: CallbackQuery, state: FSMContext, sessio
         user = await UserService.get_user_by_telegram_id(session, str(callback.from_user.id))
         
         if not user:
-            await callback.message.edit_text("❌ Ошибка: пользователь не найден")
+            try:
+                await callback.message.edit_text("❌ Ошибка: пользователь не найден")
+            except TelegramBadRequest as e:
+                if "message is not modified" in str(e):
+                    # Если сообщение не изменилось, просто отправляем ответ на callback
+                    await callback.answer("Ошибка: пользователь не найден", show_alert=False)
+                else:
+                    # Если другая ошибка BadRequest, пробрасываем дальше
+                    raise
             return
         
         # Всегда показываем главное меню по требованию пользователя
@@ -105,10 +114,18 @@ async def content_maker_entry(callback: CallbackQuery, state: FSMContext, sessio
             
     except Exception as e:
         logger.error(f"Ошибка при входе в контент-мейкер: {e}", exc_info=True)
-        await callback.message.edit_text(
-            "❌ Произошла ошибка. Попробуйте позже.",
-            reply_markup=get_back_to_content_maker()
-        )
+        try:
+            await callback.message.edit_text(
+                "❌ Произошла ошибка. Попробуйте позже.",
+                reply_markup=get_back_to_content_maker()
+            )
+        except TelegramBadRequest as e:
+            if "message is not modified" in str(e):
+                # Если сообщение не изменилось, просто отправляем ответ на callback
+                await callback.answer("Произошла ошибка", show_alert=False)
+            else:
+                # Если другая ошибка BadRequest, пробрасываем дальше
+                raise
 
 
 async def show_welcome_message(message: Message, state: FSMContext):
@@ -127,11 +144,19 @@ async def show_welcome_message(message: Message, state: FSMContext):
 
 *Как тебе удобнее?*"""
     
-    await message.edit_text(
-        welcome_text,
-        reply_markup=get_content_maker_profile_choice(),
-        parse_mode="Markdown"
-    )
+    try:
+        await message.edit_text(
+            welcome_text,
+            reply_markup=get_content_maker_profile_choice(),
+            parse_mode="Markdown"
+        )
+    except TelegramBadRequest as e:
+        if "message is not modified" in str(e):
+            # Если сообщение не изменилось, просто отправляем ответ на callback
+            pass
+        else:
+            # Если другая ошибка BadRequest, пробрасываем дальше
+            raise
     # PDF гайд больше не отправляется здесь, он будет в главном меню
     await state.set_state(ContentMakerStates.profile_fill_choice)
 
@@ -257,6 +282,13 @@ async def show_personalization_settings(callback: CallbackQuery, state: FSMConte
         if not user:
             try:
                 await callback.message.edit_text("❌ Ошибка: пользователь не найден")
+            except TelegramBadRequest as e:
+                if "message is not modified" in str(e):
+                    # Если сообщение не изменилось, просто отправляем ответ на callback
+                    await callback.answer("Ошибка: пользователь не найден", show_alert=False)
+                else:
+                    # Если другая ошибка BadRequest, пробрасываем дальше
+                    raise
             except Exception:
                 await callback.message.answer("❌ Ошибка: пользователь не найден")
             return
@@ -270,6 +302,13 @@ async def show_personalization_settings(callback: CallbackQuery, state: FSMConte
                     "❓ Профиль не найден. Пожалуйста, заполните его сначала.",
                     reply_markup=get_content_maker_profile_choice()
                 )
+            except TelegramBadRequest as e:
+                if "message is not modified" in str(e):
+                    # Если сообщение не изменилось, просто отправляем ответ на callback
+                    await callback.answer("Профиль не найден", show_alert=False)
+                else:
+                    # Если другая ошибка BadRequest, пробрасываем дальше
+                    raise
             except Exception:
                 await callback.message.answer(
                     "❓ Профиль не найден. Пожалуйста, заполните его сначала.",
@@ -303,6 +342,13 @@ async def show_personalization_settings(callback: CallbackQuery, state: FSMConte
                 reply_markup=get_content_maker_profile_view(),
                 parse_mode="Markdown"
             )
+        except TelegramBadRequest as e:
+            if "message is not modified" in str(e):
+                # Если сообщение не изменилось, просто отправляем ответ на callback
+                await callback.answer("Настройки персонализации", show_alert=False)
+            else:
+                # Если другая ошибка BadRequest, пробрасываем дальше
+                raise
         except Exception as e:
             # Если не удалось отредактировать (например, сообщение удалено), отправляем новое
             logger.debug(f"Не удалось отредактировать сообщение, отправляем новое: {e}")
@@ -321,6 +367,13 @@ async def show_personalization_settings(callback: CallbackQuery, state: FSMConte
                 "❌ Произошла ошибка при загрузке профиля.",
                 reply_markup=get_back_to_content_maker()
             )
+        except TelegramBadRequest as e:
+            if "message is not modified" in str(e):
+                # Если сообщение не изменилось, просто отправляем ответ на callback
+                await callback.answer("Ошибка при загрузке профиля", show_alert=False)
+            else:
+                # Если другая ошибка BadRequest, пробрасываем дальше
+                raise
         except Exception:
             await callback.message.answer(
                 "❌ Произошла ошибка при загрузке профиля.",
@@ -501,7 +554,15 @@ async def profile_fill_text_process(message: Message, state: FSMContext, session
         user = await UserService.get_user_by_telegram_id(session, str(message.from_user.id))
         
         if not user:
-            await processing_msg.edit_text("❌ Ошибка: пользователь не найден")
+            try:
+                await processing_msg.edit_text("❌ Ошибка: пользователь не найден")
+            except TelegramBadRequest as e:
+                if "message is not modified" in str(e):
+                    # Если сообщение не изменилось, просто отправляем ответ на callback
+                    pass
+                else:
+                    # Если другая ошибка BadRequest, пробрасываем дальше
+                    raise
             return
         
         # Парсим профиль через LLM
@@ -661,12 +722,29 @@ async def voice_finish(callback: CallbackQuery, state: FSMContext, session: Asyn
     try:
         await callback.answer()
         
-        processing_msg = await callback.message.edit_text("⏳ Обрабатываю голосовые сообщения...")
+        try:
+            processing_msg = await callback.message.edit_text("⏳ Обрабатываю голосовые сообщения...")
+        except TelegramBadRequest as e:
+            if "message is not modified" in str(e):
+                # Если сообщение не изменилось, просто отправляем ответ на callback
+                await callback.answer("Обрабатываю голосовые сообщения", show_alert=False)
+                processing_msg = callback.message
+            else:
+                # Если другая ошибка BadRequest, пробрасываем дальше
+                raise
         
         user = await UserService.get_user_by_telegram_id(session, str(callback.from_user.id))
         
         if not user:
-            await processing_msg.edit_text("❌ Ошибка: пользователь не найден")
+            try:
+                await processing_msg.edit_text("❌ Ошибка: пользователь не найден")
+            except TelegramBadRequest as e:
+                if "message is not modified" in str(e):
+                    # Если сообщение не изменилось, просто отправляем ответ на callback
+                    pass
+                else:
+                    # Если другая ошибка BadRequest, пробрасываем дальше
+                    raise
             return
         
         # Получаем ID сессии
@@ -674,7 +752,15 @@ async def voice_finish(callback: CallbackQuery, state: FSMContext, session: Asyn
         session_id = data.get('voice_session_id')
         
         if not session_id:
-            await processing_msg.edit_text("❌ Сессия не найдена")
+            try:
+                await processing_msg.edit_text("❌ Сессия не найдена")
+            except TelegramBadRequest as e:
+                if "message is not modified" in str(e):
+                    # Если сообщение не изменилось, просто отправляем ответ на callback
+                    pass
+                else:
+                    # Если другая ошибка BadRequest, пробрасываем дальше
+                    raise
             return
         
         from uuid import UUID
@@ -684,7 +770,15 @@ async def voice_finish(callback: CallbackQuery, state: FSMContext, session: Asyn
         chunks = await ContentProfileService.get_session_voice_chunks(session, session_uuid)
         
         if not chunks:
-            await processing_msg.edit_text("❌ Голосовые сообщения не найдены")
+            try:
+                await processing_msg.edit_text("❌ Голосовые сообщения не найдены")
+            except TelegramBadRequest as e:
+                if "message is not modified" in str(e):
+                    # Если сообщение не изменилось, просто отправляем ответ на callback
+                    pass
+                else:
+                    # Если другая ошибка BadRequest, пробрасываем дальше
+                    raise
             return
         
         # Транскрибируем все фрагменты
@@ -696,12 +790,28 @@ async def voice_finish(callback: CallbackQuery, state: FSMContext, session: Asyn
         
         file_ids = [chunk.file_id for chunk in chunks]
         
-        await processing_msg.edit_text(f"🎙 Транскрибирую {len(file_ids)} голосовых сообщений...")
+        try:
+            await processing_msg.edit_text(f"🎙 Транскрибирую {len(file_ids)} голосовых сообщений...")
+        except TelegramBadRequest as e:
+            if "message is not modified" in str(e):
+                # Если сообщение не изменилось, просто отправляем ответ на callback
+                pass
+            else:
+                # Если другая ошибка BadRequest, пробрасываем дальше
+                raise
         
         combined_transcript = await whisper_service.transcribe_multiple_voices(bot, file_ids)
         
         # Парсим профиль через LLM
-        await processing_msg.edit_text("🤖 Анализирую твой профиль...")
+        try:
+            await processing_msg.edit_text("🤖 Анализирую твой профиль...")
+        except TelegramBadRequest as e:
+            if "message is not modified" in str(e):
+                # Если сообщение не изменилось, просто отправляем ответ на callback
+                pass
+            else:
+                # Если другая ошибка BadRequest, пробрасываем дальше
+                raise
         
         from bot.services.llm_service import get_llm_service
         llm_service = get_llm_service()
@@ -718,10 +828,18 @@ async def voice_finish(callback: CallbackQuery, state: FSMContext, session: Asyn
         # Закрываем сессию
         await ContentProfileService.close_voice_session(session, session_uuid)
         
-        await processing_msg.edit_text(
-            "✅ *Профиль сохранён!*\n\nТеперь я знаю твой стиль и буду генерировать персонализированный контент.",
-            parse_mode="Markdown"
-        )
+        try:
+            await processing_msg.edit_text(
+                "✅ *Профиль сохранён!*\n\nТеперь я знаю твой стиль и буду генерировать персонализированный контент.",
+                parse_mode="Markdown"
+            )
+        except TelegramBadRequest as e:
+            if "message is not modified" in str(e):
+                # Если сообщение не изменилось, просто отправляем ответ на callback
+                pass
+            else:
+                # Если другая ошибка BadRequest, пробрасываем дальше
+                raise
         
         # Показываем главное меню
         menu_msg = await callback.message.answer("Загружаю меню...")
@@ -797,11 +915,34 @@ async def select_platform_and_generate(callback: CallbackQuery, state: FSMContex
         # Извлекаем платформу
         platform = callback.data.split("_")[-1]
         
-        processing_msg = await callback.message.edit_text("⏳ Генерирую идеи...")
+        try:
+            processing_msg = await callback.message.edit_text("⏳ Генерирую идеи...")
+        except TelegramBadRequest as e:
+            if "message is not modified" in str(e):
+                # Если сообщение не изменилось, просто отправляем ответ на callback
+                await callback.answer("Генерирую идеи", show_alert=False)
+                processing_msg = callback.message
+            else:
+                # Если другая ошибка BadRequest, пробрасываем дальше
+                raise
         
         user = await UserService.get_user_by_telegram_id(session, str(callback.from_user.id))
         if not user:
-            await processing_msg.edit_text("❌ Пользователь не найден")
+            try:
+                await processing_msg.edit_text("❌ Пользователь не найден")
+            except TelegramBadRequest as e:
+                if "message is not modified" in str(e):
+                    # Если сообщение не изменилось, просто отправляем ответ на callback
+                    pass
+                else:
+                    # Если другая ошибка BadRequest, пробрасываем дальше
+                    raise
+                if "message is not modified" in str(e):
+                    # Если сообщение не изменилось, просто отправляем ответ на callback
+                    await callback.answer("Пользователь не найден", show_alert=False)
+                else:
+                    # Если другая ошибка BadRequest, пробрасываем дальше
+                    raise
             return
         
         # Получаем данные из state
@@ -815,7 +956,15 @@ async def select_platform_and_generate(callback: CallbackQuery, state: FSMContex
         content_type = await ContentIdeasService.get_content_type_by_id(session, type_id)
         
         if not content_type:
-            await processing_msg.edit_text("❌ Тип контента не найден")
+            try:
+                await processing_msg.edit_text("❌ Тип контента не найден")
+            except TelegramBadRequest as e:
+                if "message is not modified" in str(e):
+                    # Если сообщение не изменилось, просто отправляем ответ на callback
+                    pass
+                else:
+                    # Если другая ошибка BadRequest, пробрасываем дальше
+                    raise
             return
         
         # Генерируем идеи через LLM
@@ -851,10 +1000,18 @@ async def select_platform_and_generate(callback: CallbackQuery, state: FSMContex
         
     except Exception as e:
         logger.error(f"Ошибка при генерации идей: {e}", exc_info=True)
-        await callback.message.edit_text(
-            "❌ Ошибка при генерации идей",
-            reply_markup=get_back_to_content_maker()
-        )
+        try:
+            await callback.message.edit_text(
+                "❌ Ошибка при генерации идей",
+                reply_markup=get_back_to_content_maker()
+            )
+        except TelegramBadRequest as e:
+            if "message is not modified" in str(e):
+                # Если сообщение не изменилось, просто отправляем ответ на callback
+                await callback.answer("Ошибка при генерации идей", show_alert=False)
+            else:
+                # Если другая ошибка BadRequest, пробрасываем дальше
+                raise
 
 
 @router.callback_query(F.data.startswith("cm_save_idea_"))
@@ -911,11 +1068,19 @@ async def show_idea_at_index(message: Message, state: FSMContext, index: int, id
         
         from bot.keyboards.keyboards import get_idea_navigation_keyboard
         
-        await message.edit_text(
-            idea_text,
-            reply_markup=get_idea_navigation_keyboard(index, len(ideas)),
-            parse_mode="Markdown"
-        )
+        try:
+            await message.edit_text(
+                idea_text,
+                reply_markup=get_idea_navigation_keyboard(index, len(ideas)),
+                parse_mode="Markdown"
+            )
+        except TelegramBadRequest as e:
+            if "message is not modified" in str(e):
+                # Если сообщение не изменилось, просто отправляем ответ на callback
+                pass
+            else:
+                # Если другая ошибка BadRequest, пробрасываем дальше
+                raise
         
         # Обновляем текущий индекс в state
         await state.update_data(current_idea_index=index)
@@ -936,7 +1101,15 @@ async def navigate_ideas(callback: CallbackQuery, state: FSMContext):
         ideas = data.get('generated_ideas', [])
         
         if not ideas:
-            await callback.message.edit_text("❌ Идеи не найдены")
+            try:
+                await callback.message.edit_text("❌ Идеи не найдены")
+            except TelegramBadRequest as e:
+                if "message is not modified" in str(e):
+                    # Если сообщение не изменилось, просто отправляем ответ на callback
+                    await callback.answer("Идеи не найдены", show_alert=False)
+                else:
+                    # Если другая ошибка BadRequest, пробрасываем дальше
+                    raise
             return
         
         await show_idea_at_index(callback.message, state, new_index, ideas)
@@ -1031,7 +1204,21 @@ async def generate_post_from_idea(callback: CallbackQuery, state: FSMContext, bo
             user = await UserService.get_user_by_telegram_id(session, str(callback.from_user.id))
             
             if not user:
-                await processing_msg.edit_text("❌ Пользователь не найден")
+                try:
+                    await processing_msg.edit_text("❌ Пользователь не найден")
+                except TelegramBadRequest as e:
+                    if "message is not modified" in str(e):
+                        # Если сообщение не изменилось, просто отправляем ответ на callback
+                        pass
+                    else:
+                        # Если другая ошибка BadRequest, пробрасываем дальше
+                        raise
+                    if "message is not modified" in str(e):
+                        # Если сообщение не изменилось, просто отправляем ответ на callback
+                        await callback.answer("Пользователь не найден", show_alert=False)
+                    else:
+                        # Если другая ошибка BadRequest, пробрасываем дальше
+                        raise
                 return
             
             data = await state.get_data()
@@ -1039,7 +1226,21 @@ async def generate_post_from_idea(callback: CallbackQuery, state: FSMContext, bo
             idea_index = data.get('selected_idea_index', 0)
             
             if idea_index >= len(ideas):
-                await processing_msg.edit_text("❌ Идея не найдена")
+                try:
+                    await processing_msg.edit_text("❌ Идея не найдена")
+                except TelegramBadRequest as e:
+                    if "message is not modified" in str(e):
+                        # Если сообщение не изменилось, просто отправляем ответ на callback
+                        pass
+                    else:
+                        # Если другая ошибка BadRequest, пробрасываем дальше
+                        raise
+                    if "message is not modified" in str(e):
+                        # Если сообщение не изменилось, просто отправляем ответ на callback
+                        await callback.answer("Идея не найдена", show_alert=False)
+                    else:
+                        # Если другая ошибка BadRequest, пробрасываем дальше
+                        raise
                 return
             
             idea = ideas[idea_index]
@@ -1081,11 +1282,25 @@ async def generate_post_from_idea(callback: CallbackQuery, state: FSMContext, bo
             # Показываем пост
             from bot.keyboards.keyboards import get_post_actions_keyboard
             
-            await processing_msg.edit_text(
-                f"{post_text}\n\n---\n_Вариант 1 (основной)_",
-                reply_markup=get_post_actions_keyboard(str(post.id)),
-                parse_mode="Markdown"
-            )
+            try:
+                await processing_msg.edit_text(
+                    f"{post_text}\n\n---\n_Вариант 1 (основной)_",
+                    reply_markup=get_post_actions_keyboard(str(post.id)),
+                    parse_mode="Markdown"
+                )
+            except TelegramBadRequest as e:
+                if "message is not modified" in str(e):
+                    # Если сообщение не изменилось, просто отправляем ответ на callback
+                    pass
+                else:
+                    # Если другая ошибка BadRequest, пробрасываем дальше
+                    raise
+                if "message is not modified" in str(e):
+                    # Если сообщение не изменилось, просто отправляем ответ на callback
+                    await callback.answer("Пост готов", show_alert=False)
+                else:
+                    # Если другая ошибка BadRequest, пробрасываем дальше
+                    raise
             
             await state.update_data(
                 current_post_id=str(post.id),
@@ -1164,7 +1379,21 @@ async def edit_post_voice(message: Message, state: FSMContext, session: AsyncSes
         transcript = await whisper_service.transcribe_voice(message.bot, message.voice.file_id)
         
         if not transcript or len(transcript) < 10:
-            await processing_msg.edit_text("❌ Не удалось распознать текст. Попробуйте ещё раз.")
+            try:
+                await processing_msg.edit_text("❌ Не удалось распознать текст. Попробуйте ещё раз.")
+            except TelegramBadRequest as e:
+                if "message is not modified" in str(e):
+                    # Если сообщение не изменилось, просто отправляем ответ на callback
+                    pass
+                else:
+                    # Если другая ошибка BadRequest, пробрасываем дальше
+                    raise
+                if "message is not modified" in str(e):
+                    # Если сообщение не изменилось, просто отправляем ответ на callback
+                    await callback.answer("Не удалось распознать текст", show_alert=False)
+                else:
+                    # Если другая ошибка BadRequest, пробрасываем дальше
+                    raise
             return
         
         # Обрабатываем как текстовую инструкцию
@@ -1212,7 +1441,21 @@ async def edit_post_with_llm(message: Message, state: FSMContext, session: Async
         post = await ContentPostsService.get_post(session, UUID(post_id))
         
         if not post:
-            await processing_msg.edit_text("❌ Пост не найден")
+            try:
+                await processing_msg.edit_text("❌ Пост не найден")
+            except TelegramBadRequest as e:
+                if "message is not modified" in str(e):
+                    # Если сообщение не изменилось, просто отправляем ответ на callback
+                    pass
+                else:
+                    # Если другая ошибка BadRequest, пробрасываем дальше
+                    raise
+                if "message is not modified" in str(e):
+                    # Если сообщение не изменилось, просто отправляем ответ на callback
+                    await callback.answer("Пост не найден", show_alert=False)
+                else:
+                    # Если другая ошибка BadRequest, пробрасываем дальше
+                    raise
             return
         
         # Получаем профиль для персонализации
@@ -1237,7 +1480,21 @@ async def edit_post_with_llm(message: Message, state: FSMContext, session: Async
         )
         
         if not updated_post:
-            await processing_msg.edit_text("❌ Не удалось обновить пост")
+            try:
+                await processing_msg.edit_text("❌ Не удалось обновить пост")
+            except TelegramBadRequest as e:
+                if "message is not modified" in str(e):
+                    # Если сообщение не изменилось, просто отправляем ответ на callback
+                    pass
+                else:
+                    # Если другая ошибка BadRequest, пробрасываем дальше
+                    raise
+                if "message is not modified" in str(e):
+                    # Если сообщение не изменилось, просто отправляем ответ на callback
+                    await callback.answer("Не удалось обновить пост", show_alert=False)
+                else:
+                    # Если другая ошибка BadRequest, пробрасываем дальше
+                    raise
             return
         
         await session.commit()
@@ -1245,11 +1502,25 @@ async def edit_post_with_llm(message: Message, state: FSMContext, session: Async
         # Показываем обновленный пост
         from bot.keyboards.keyboards import get_post_actions_keyboard
         
-        await processing_msg.edit_text(
-            f"{edited_text}\n\n---\n_Обновлённая версия_",
-            reply_markup=get_post_actions_keyboard(str(updated_post.id)),
-            parse_mode="Markdown"
-        )
+        try:
+            await processing_msg.edit_text(
+                f"{edited_text}\n\n---\n_Обновлённая версия_",
+                reply_markup=get_post_actions_keyboard(str(updated_post.id)),
+                parse_mode="Markdown"
+            )
+        except TelegramBadRequest as e:
+            if "message is not modified" in str(e):
+                # Если сообщение не изменилось, просто отправляем ответ на callback
+                pass
+            else:
+                # Если другая ошибка BadRequest, пробрасываем дальше
+                raise
+            if "message is not modified" in str(e):
+                # Если сообщение не изменилось, просто отправляем ответ на callback
+                await callback.answer("Пост обновлён", show_alert=False)
+            else:
+                # Если другая ошибка BadRequest, пробрасываем дальше
+                raise
         
         await state.set_state(ContentMakerStates.post_viewing)
         
@@ -1330,7 +1601,15 @@ async def show_planner_type(callback: CallbackQuery, state: FSMContext, session:
         
         user = await UserService.get_user_by_telegram_id(session, str(callback.from_user.id))
         if not user:
-            await callback.message.edit_text("❌ Пользователь не найден")
+            try:
+                await callback.message.edit_text("❌ Пользователь не найден")
+            except TelegramBadRequest as e:
+                if "message is not modified" in str(e):
+                    # Если сообщение не изменилось, просто отправляем ответ на callback
+                    await callback.answer("Пользователь не найден", show_alert=False)
+                else:
+                    # Если другая ошибка BadRequest, пробрасываем дальше
+                    raise
             return
         
         from bot.services.content_ideas_service import ContentIdeasService
@@ -1339,10 +1618,18 @@ async def show_planner_type(callback: CallbackQuery, state: FSMContext, session:
         ideas = await ContentIdeasService.get_saved_ideas_by_type(session, user.id, type_id)
         
         if not ideas:
-            await callback.message.edit_text(
-                "❌ Идеи не найдены",
-                reply_markup=get_back_to_content_maker()
-            )
+            try:
+                await callback.message.edit_text(
+                    "❌ Идеи не найдены",
+                    reply_markup=get_back_to_content_maker()
+                )
+            except TelegramBadRequest as e:
+                if "message is not modified" in str(e):
+                    # Если сообщение не изменилось, просто отправляем ответ на callback
+                    await callback.answer("Идеи не найдены", show_alert=False)
+                else:
+                    # Если другая ошибка BadRequest, пробрасываем дальше
+                    raise
             return
         
         # Сохраняем идеи в state
@@ -1375,11 +1662,19 @@ async def show_planner_idea_at_index(message: Message, state: FSMContext, index:
         
         from bot.keyboards.keyboards import get_planner_type_ideas_keyboard
         
-        await message.edit_text(
-            idea_text,
-            reply_markup=get_planner_type_ideas_keyboard(index, len(ideas), str(idea.id), type_id),
-            parse_mode="Markdown"
-        )
+        try:
+            await message.edit_text(
+                idea_text,
+                reply_markup=get_planner_type_ideas_keyboard(index, len(ideas), str(idea.id), type_id),
+                parse_mode="Markdown"
+            )
+        except TelegramBadRequest as e:
+            if "message is not modified" in str(e):
+                # Если сообщение не изменилось, просто отправляем ответ на callback
+                pass
+            else:
+                # Если другая ошибка BadRequest, пробрасываем дальше
+                raise
         
         await state.update_data(planner_current_index=index)
         
@@ -1448,10 +1743,18 @@ async def delete_idea(callback: CallbackQuery, state: FSMContext, session: Async
             
             if not ideas:
                 # Если идей больше нет, возвращаемся к категориям
-                await callback.message.edit_text(
-                    "📋 Все идеи в этой категории удалены",
-                    reply_markup=get_back_to_content_maker()
-                )
+                try:
+                    await callback.message.edit_text(
+                        "📋 Все идеи в этой категории удалены",
+                        reply_markup=get_back_to_content_maker()
+                    )
+                except TelegramBadRequest as e:
+                    if "message is not modified" in str(e):
+                        # Если сообщение не изменилось, просто отправляем ответ на callback
+                        await callback.answer("Все идеи удалены", show_alert=False)
+                    else:
+                        # Если другая ошибка BadRequest, пробрасываем дальше
+                        raise
                 return
             
             # Корректируем индекс если нужно
@@ -1484,12 +1787,35 @@ async def write_post_from_planner_idea(callback: CallbackQuery, state: FSMContex
             await callback.message.answer("❌ Идея не найдена")
             return
         
-        processing_msg = await callback.message.edit_text("⏳ Пишу пост...")
+        try:
+            processing_msg = await callback.message.edit_text("⏳ Пишу пост...")
+        except TelegramBadRequest as e:
+            if "message is not modified" in str(e):
+                # Если сообщение не изменилось, просто отправляем ответ на callback
+                await callback.answer("Пишу пост", show_alert=False)
+                processing_msg = callback.message
+            else:
+                # Если другая ошибка BadRequest, пробрасываем дальше
+                raise
         
         user = await UserService.get_user_by_telegram_id(session, str(callback.from_user.id))
         
         if not user:
-            await processing_msg.edit_text("❌ Пользователь не найден")
+            try:
+                await processing_msg.edit_text("❌ Пользователь не найден")
+            except TelegramBadRequest as e:
+                if "message is not modified" in str(e):
+                    # Если сообщение не изменилось, просто отправляем ответ на callback
+                    pass
+                else:
+                    # Если другая ошибка BadRequest, пробрасываем дальше
+                    raise
+                if "message is not modified" in str(e):
+                    # Если сообщение не изменилось, просто отправляем ответ на callback
+                    await callback.answer("Пользователь не найден", show_alert=False)
+                else:
+                    # Если другая ошибка BadRequest, пробрасываем дальше
+                    raise
             return
         
         # Получаем профиль
@@ -1527,11 +1853,25 @@ async def write_post_from_planner_idea(callback: CallbackQuery, state: FSMContex
         # Показываем пост
         from bot.keyboards.keyboards import get_post_actions_keyboard
         
-        await processing_msg.edit_text(
-            f"{post_text}\n\n---\n_Вариант 1 (основной)_",
-            reply_markup=get_post_actions_keyboard(str(post.id)),
-            parse_mode="Markdown"
-        )
+        try:
+            await processing_msg.edit_text(
+                f"{post_text}\n\n---\n_Вариант 1 (основной)_",
+                reply_markup=get_post_actions_keyboard(str(post.id)),
+                parse_mode="Markdown"
+            )
+        except TelegramBadRequest as e:
+            if "message is not modified" in str(e):
+                # Если сообщение не изменилось, просто отправляем ответ на callback
+                pass
+            else:
+                # Если другая ошибка BadRequest, пробрасываем дальше
+                raise
+            if "message is not modified" in str(e):
+                # Если сообщение не изменилось, просто отправляем ответ на callback
+                await callback.answer("Пост готов", show_alert=False)
+            else:
+                # Если другая ошибка BadRequest, пробрасываем дальше
+                raise
         
         await state.update_data(current_post_id=str(post.id))
         await state.set_state(ContentMakerStates.post_viewing)
@@ -1551,12 +1891,34 @@ async def process_custom_idea_for_post(message: Message, state: FSMContext, sess
             await message.answer("❌ Идея слишком короткая. Опишите подробнее (минимум 10 символов).")
             return
         
-        processing_msg = await message.answer("⏳ Пишу пост...")
+        try:
+            processing_msg = await message.answer("⏳ Пишу пост...")
+        except TelegramBadRequest as e:
+            if "message is not modified" in str(e):
+                # Если сообщение не изменилось, просто отправляем ответ на callback
+                await callback.answer("Пишу пост", show_alert=False)
+            else:
+                # Если другая ошибка BadRequest, пробрасываем дальше
+                raise
         
         user = await UserService.get_user_by_telegram_id(session, str(message.from_user.id))
         
         if not user:
-            await processing_msg.edit_text("❌ Пользователь не найден")
+            try:
+                await processing_msg.edit_text("❌ Пользователь не найден")
+            except TelegramBadRequest as e:
+                if "message is not modified" in str(e):
+                    # Если сообщение не изменилось, просто отправляем ответ на callback
+                    pass
+                else:
+                    # Если другая ошибка BadRequest, пробрасываем дальше
+                    raise
+                if "message is not modified" in str(e):
+                    # Если сообщение не изменилось, просто отправляем ответ на callback
+                    await callback.answer("Пользователь не найден", show_alert=False)
+                else:
+                    # Если другая ошибка BadRequest, пробрасываем дальше
+                    raise
             return
         
         # Получаем профиль
@@ -1591,11 +1953,25 @@ async def process_custom_idea_for_post(message: Message, state: FSMContext, sess
         # Показываем пост
         from bot.keyboards.keyboards import get_post_actions_keyboard
         
-        await processing_msg.edit_text(
-            f"{post_text}\n\n---\n_Вариант 1 (основной)_",
-            reply_markup=get_post_actions_keyboard(str(post.id)),
-            parse_mode="Markdown"
-        )
+        try:
+            await processing_msg.edit_text(
+                f"{post_text}\n\n---\n_Вариант 1 (основной)_",
+                reply_markup=get_post_actions_keyboard(str(post.id)),
+                parse_mode="Markdown"
+            )
+        except TelegramBadRequest as e:
+            if "message is not modified" in str(e):
+                # Если сообщение не изменилось, просто отправляем ответ на callback
+                pass
+            else:
+                # Если другая ошибка BadRequest, пробрасываем дальше
+                raise
+            if "message is not modified" in str(e):
+                # Если сообщение не изменилось, просто отправляем ответ на callback
+                await callback.answer("Пост готов", show_alert=False)
+            else:
+                # Если другая ошибка BadRequest, пробрасываем дальше
+                raise
         
         await state.update_data(current_post_id=str(post.id))
         await state.set_state(ContentMakerStates.post_viewing)

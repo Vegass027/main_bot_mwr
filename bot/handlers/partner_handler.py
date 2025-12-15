@@ -3,6 +3,7 @@ from aiogram.types import CallbackQuery
 from aiogram.fsm.context import FSMContext
 from sqlalchemy.ext.asyncio import AsyncSession
 import asyncio
+from aiogram.exceptions import TelegramBadRequest
 
 from bot.keyboards.keyboards import (
     get_partner_qualification_menu,
@@ -100,10 +101,18 @@ async def partner_qualification(callback: CallbackQuery, state: FSMContext, sess
             action_type="Нажал 'Бизнес'"
         )
     
-    await callback.message.edit_text(
-        PARTNER_QUALIFICATION,
-        reply_markup=get_partner_qualification_menu()
-    )
+    try:
+        await callback.message.edit_text(
+            PARTNER_QUALIFICATION,
+            reply_markup=get_partner_qualification_menu()
+        )
+    except TelegramBadRequest as e:
+        if "message is not modified" in str(e):
+            # Если сообщение не изменилось, просто отправляем ответ на callback
+            await callback.answer("Квалификация партнера", show_alert=False)
+        else:
+            # Если другая ошибка BadRequest, пробрасываем дальше
+            raise
     await state.set_state(UserStates.partner_qualification)
     await callback.answer()
 
@@ -124,7 +133,15 @@ async def partner_passive_income(callback: CallbackQuery, state: FSMContext, ses
         )
     
     # Отправляем текст
-    await callback.message.edit_text(PARTNER_PASSIVE_INCOME)
+    try:
+        await callback.message.edit_text(PARTNER_PASSIVE_INCOME)
+    except TelegramBadRequest as e:
+        if "message is not modified" in str(e):
+            # Если сообщение не изменилось, просто отправляем ответ на callback
+            await callback.answer("Пассивный доход", show_alert=False)
+        else:
+            # Если другая ошибка BadRequest, пробрасываем дальше
+            raise
     
     # Получаем реферера
     referrer = await UserService.get_referrer(session, user)
@@ -159,7 +176,15 @@ async def partner_show_income_scheme(callback: CallbackQuery, state: FSMContext,
         )
     
     # Отправляем текст
-    await callback.message.edit_text(PARTNER_PASSIVE_INCOME_FINAL)
+    try:
+        await callback.message.edit_text(PARTNER_PASSIVE_INCOME_FINAL)
+    except TelegramBadRequest as e:
+        if "message is not modified" in str(e):
+            # Если сообщение не изменилось, просто отправляем ответ на callback
+            await callback.answer("Схема дохода", show_alert=False)
+        else:
+            # Если другая ошибка BadRequest, пробрасываем дальше
+            raise
     
     # Получаем реферера
     referrer = await UserService.get_referrer(session, user)
@@ -195,7 +220,15 @@ async def partner_travel_free(callback: CallbackQuery, state: FSMContext, sessio
         )
     
     # Отправляем текст
-    await callback.message.edit_text(PARTNER_TRAVEL_FREE)
+    try:
+        await callback.message.edit_text(PARTNER_TRAVEL_FREE)
+    except TelegramBadRequest as e:
+        if "message is not modified" in str(e):
+            # Если сообщение не изменилось, просто отправляем ответ на callback
+            await callback.answer("Путешествовать бесплатно", show_alert=False)
+        else:
+            # Если другая ошибка BadRequest, пробрасываем дальше
+            raise
     
     # Получаем реферера
     referrer = await UserService.get_referrer(session, user)
@@ -230,7 +263,15 @@ async def partner_show_travel_how(callback: CallbackQuery, state: FSMContext, se
         )
     
     # Отправляем текст
-    await callback.message.edit_text(PARTNER_TRAVEL_FREE_FINAL)
+    try:
+        await callback.message.edit_text(PARTNER_TRAVEL_FREE_FINAL)
+    except TelegramBadRequest as e:
+        if "message is not modified" in str(e):
+            # Если сообщение не изменилось, просто отправляем ответ на callback
+            await callback.answer("Как начать летать бесплатно", show_alert=False)
+        else:
+            # Если другая ошибка BadRequest, пробрасываем дальше
+            raise
     
     # Получаем реферера
     referrer = await UserService.get_referrer(session, user)
@@ -266,7 +307,15 @@ async def partner_quit_job(callback: CallbackQuery, state: FSMContext, session: 
         )
     
     # Отправляем текст
-    await callback.message.edit_text(PARTNER_QUIT_JOB)
+    try:
+        await callback.message.edit_text(PARTNER_QUIT_JOB)
+    except TelegramBadRequest as e:
+        if "message is not modified" in str(e):
+            # Если сообщение не изменилось, просто отправляем ответ на callback
+            await callback.answer("Уволиться из найма", show_alert=False)
+        else:
+            # Если другая ошибка BadRequest, пробрасываем дальше
+            raise
     
     # Получаем реферера
     referrer = await UserService.get_referrer(session, user)
@@ -301,7 +350,15 @@ async def partner_show_quit_plan(callback: CallbackQuery, state: FSMContext, ses
         )
     
     # Отправляем текст
-    await callback.message.edit_text(PARTNER_QUIT_JOB_FINAL)
+    try:
+        await callback.message.edit_text(PARTNER_QUIT_JOB_FINAL)
+    except TelegramBadRequest as e:
+        if "message is not modified" in str(e):
+            # Если сообщение не изменилось, просто отправляем ответ на callback
+            await callback.answer("План побега из найма", show_alert=False)
+        else:
+            # Если другая ошибка BadRequest, пробрасываем дальше
+            raise
     
     # Получаем реферера
     referrer = await UserService.get_referrer(session, user)
