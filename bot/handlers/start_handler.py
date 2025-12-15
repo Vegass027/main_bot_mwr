@@ -114,8 +114,9 @@ async def back_to_pro_menu(callback: CallbackQuery, state: FSMContext):
     
     try:
         await callback.message.edit_text(
-            "С возвращением, Партнер! Твои инструменты готовы.",
-            reply_markup=get_pro_menu()
+            "С возвращением, Партнер!\n\nТвои инструменты готовы🔥",
+            reply_markup=get_pro_menu(),
+            parse_mode="Markdown"
         )
     except TelegramBadRequest as e:
         if "message is not modified" in str(e):
