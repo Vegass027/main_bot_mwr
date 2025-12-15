@@ -25,7 +25,7 @@ logger = logging.getLogger(__name__)
 router = Router()
 
 # Кэшируем путь к PDF и file_id для ускорения отправки
-_PDF_PATH = Path(__file__).parent.parent.parent / "KONTENT-MEJKER.pdf"
+_PDF_PATH = Path.cwd() / "Контент-Мейкер. Гайд.pdf"  # Ищем PDF в корневой директории
 _PDF_FILE_ID = None  # Будет заполнен после первой отправки
 
 
@@ -100,15 +100,8 @@ async def content_maker_entry(callback: CallbackQuery, state: FSMContext, sessio
             await callback.message.edit_text("❌ Ошибка: пользователь не найден")
             return
         
-        # Проверяем, есть ли уже профиль
-        has_profile = await ContentProfileService.has_profile(session, user.id)
-        
-        if not has_profile:
-            # Показываем приветствие и предлагаем заполнить профиль
-            await show_welcome_message(callback.message, state)
-        else:
-            # Показываем главное меню
-            await show_main_menu(callback.message, state)
+        # Всегда показываем главное меню по требованию пользователя
+        await show_main_menu(callback.message, state)
             
     except Exception as e:
         logger.error(f"Ошибка при входе в контент-мейкер: {e}", exc_info=True)
