@@ -52,6 +52,7 @@ class UserStates(StatesGroup):
     awaiting_free_travel_final_voice = State()
     awaiting_quit_job_voice = State()
     awaiting_quit_job_final_voice = State()
+    awaiting_freedom_voice = State()
     
     # Радар
     radar_view = State()
