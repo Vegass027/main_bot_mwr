@@ -132,7 +132,7 @@ async def travel_pay_less(callback: CallbackQuery, state: FSMContext, session: A
     await callback.message.answer(
         "Ты должен это увидеть🤯",
         reply_markup=InlineKeyboardMarkup(inline_keyboard=[
-            [InlineKeyboardButton(text="🔍 Показать примеры цен", web_app=WebAppInfo(url="https://clubsmarttravel.vercel.app/travel"))]
+            [InlineKeyboardButton(text="🔍 Показать примеры цен", web_app=WebAppInfo(url="https://clubsmarttravel.vercel.app/"))]
         ])
     )
     
@@ -191,7 +191,7 @@ async def travel_5star_3star(callback: CallbackQuery, state: FSMContext, session
     await callback.message.answer(
         "Ты только глянь🤩",
         reply_markup=InlineKeyboardMarkup(inline_keyboard=[
-            [InlineKeyboardButton(text="💎 Показать премиум отдых", web_app=WebAppInfo(url="https://clubsmarttravel.vercel.app/travel"))]
+            [InlineKeyboardButton(text="💎 Показать премиум отдых", web_app=WebAppInfo(url="https://clubsmarttravel.vercel.app/"))]
         ])
     )
     
@@ -250,7 +250,7 @@ async def travel_more(callback: CallbackQuery, state: FSMContext, session: Async
     await callback.message.answer(
         "Смотри👀",
         reply_markup=InlineKeyboardMarkup(inline_keyboard=[
-            [InlineKeyboardButton(text="✈️ Как это работает?", web_app=WebAppInfo(url="https://clubsmarttravel.vercel.app/travel"))]
+            [InlineKeyboardButton(text="✈️ Как это работает?", web_app=WebAppInfo(url="https://clubsmarttravel.vercel.app/"))]
         ])
     )
     
