@@ -14,8 +14,10 @@ config = context.config
 # Interpret the config file for Python logging.
 # This line sets up loggers basically.
 if config.config_file_name is not None:
-    load_dotenv()
     fileConfig(config.config_file_name)
+
+# Force load .env file to get DATABASE_URL
+load_dotenv()
 
 # add your model's MetaData object here
 # for 'autogenerate' support
@@ -23,8 +25,15 @@ from bot.database.models import Base
 
 target_metadata = Base.metadata
 
-# The sqlalchemy.url is already set in alembic.ini from the DATABASE_URL
-# environment variable, so no extra configuration is needed here.
+# Get the database URL from the environment and make it sync
+db_url = os.environ.get("DATABASE_URL")
+if not db_url:
+    raise ValueError("DATABASE_URL is not set, please check your .env file or environment variables")
+
+if db_url.startswith("postgresql+asyncpg"):
+    db_url = db_url.replace("+asyncpg", "")
+
+config.set_main_option("sqlalchemy.url", db_url)
 
 
 def run_migrations_offline() -> None:
