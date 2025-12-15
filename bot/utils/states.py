@@ -50,6 +50,7 @@ class UserStates(StatesGroup):
     awaiting_passive_income_final_voice = State()
     awaiting_free_travel_voice = State()
     awaiting_free_travel_final_voice = State()
+    awaiting_final_voice = State()
     awaiting_quit_job_voice = State()
     awaiting_quit_job_final_voice = State()
     awaiting_freedom_voice = State()
