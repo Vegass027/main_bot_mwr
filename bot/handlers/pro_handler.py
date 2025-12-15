@@ -34,10 +34,15 @@ async def personalization_menu(callback: CallbackQuery, state: FSMContext, sessi
             menu_text,
             reply_markup=get_personalization_menu(
                 has_welcome=bool(user.welcome_video_id),
-                has_passive_income=bool(user.voice_passive_income_id),
-                has_travel=bool(user.voice_free_travel_id),
-                has_freedom=bool(user.voice_freedom_id),
-                has_final=bool(user.voice_final_cta_id)
+                has_pay_less_voice=bool(user.voice_pay_less_id),
+                has_5star_3star_voice=bool(user.voice_5star_3star_id),
+                has_travel_more_voice=bool(user.voice_travel_more_id),
+                has_passive_income_voice=bool(user.voice_passive_income_id),
+                has_passive_income_final_voice=bool(user.voice_passive_income_final_id),
+                has_free_travel_voice=bool(user.voice_free_travel_id),
+                has_free_travel_final_voice=bool(user.voice_free_travel_final_id),
+                has_quit_job_voice=bool(user.voice_freedom_id),
+                has_quit_job_final_voice=bool(user.voice_quit_job_final_id)
             ),
             parse_mode="Markdown"
         )
