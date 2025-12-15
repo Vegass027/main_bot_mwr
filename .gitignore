@@ -50,7 +50,7 @@ env/
 Thumbs.db
 
 # Documents
-*.pdf
+!Контент-Мейкер. Гайд.pdf
 
 # Backups
 .git_bak/
