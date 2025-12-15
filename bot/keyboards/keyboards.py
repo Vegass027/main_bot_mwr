@@ -44,7 +44,17 @@ def get_tourist_menu() -> InlineKeyboardMarkup:
         [InlineKeyboardButton(text="⚖️ Легально ли это?", callback_data="tourist_legal")],
         [InlineKeyboardButton(text="💎 Пример экономии", callback_data="tourist_example")],
         [InlineKeyboardButton(text="👤 Связаться с консультантом", callback_data="tourist_consultant")],
-        [InlineKeyboardButton(text="◀️ Назад", callback_data="back_to_main")]
+        [InlineKeyboardButton(text="🔙 Назад", callback_data="back_to_main")]
+    ])
+
+# Новое меню выбора ветки путешествий
+def get_travel_branch_menu() -> InlineKeyboardMarkup:
+    """Меню выбора ветки путешествий"""
+    return InlineKeyboardMarkup(inline_keyboard=[
+        [InlineKeyboardButton(text="📉 Платить меньше", callback_data="travel_pay_less")],
+        [InlineKeyboardButton(text="👑 Жить в 5★ по цене 3★", callback_data="travel_5star_3star")],
+        [InlineKeyboardButton(text="🌍 Путешествовать чаще", callback_data="travel_more")],
+        [InlineKeyboardButton(text="🔙 Назад", callback_data="back_to_main")]
     ])
 
 # Подменю туриста с возвратом
@@ -61,7 +71,7 @@ def get_partner_qualification_menu() -> InlineKeyboardMarkup:
         [InlineKeyboardButton(text="💸 Пассивный доход", callback_data="partner_passive_income")],
         [InlineKeyboardButton(text="🌍 Путешествовать бесплатно", callback_data="partner_travel_free")],
         [InlineKeyboardButton(text="🚀 Уволиться из найма", callback_data="partner_quit_job")],
-        [InlineKeyboardButton(text="◀️ Назад", callback_data="back_to_main")]
+        [InlineKeyboardButton(text="🔙 Назад", callback_data="back_to_main")]
     ])
 
 # Промежуточные кнопки для партнёрских веток
@@ -88,14 +98,14 @@ def get_partner_passive_income_final() -> InlineKeyboardMarkup:
     """Финальная кнопка для ветки Пассивный доход"""
     return InlineKeyboardMarkup(inline_keyboard=[
         [InlineKeyboardButton(text="🔐 Открыть Модель Дохода", web_app=WebAppInfo(url="https://wmrlifenew1.vercel.app/"))],
-        [InlineKeyboardButton(text="◀️ Назад", callback_data="back_to_main")]
+        [InlineKeyboardButton(text="🔙 Назад", callback_data="back_to_main")]
     ])
 
 def get_partner_travel_free_final() -> InlineKeyboardMarkup:
     """Финальная кнопка для ветки Путешествовать бесплатно"""
     return InlineKeyboardMarkup(inline_keyboard=[
         [InlineKeyboardButton(text="🔐 Забрать доступ к Платформе", web_app=WebAppInfo(url="https://wmrlifenew1.vercel.app/"))],
-        [InlineKeyboardButton(text="◀️ Назад", callback_data="back_to_main")]
+        [InlineKeyboardButton(text="🔙 Назад", callback_data="back_to_main")]
     ])
 
 # ========== КОНТЕНТ-МЕЙКЕР КЛАВИАТУРЫ ==========
@@ -439,38 +449,68 @@ def get_partner_quit_job_final() -> InlineKeyboardMarkup:
 # Меню персонализации воронки
 def get_personalization_menu(
     has_welcome: bool,
-    has_passive_income: bool,
-    has_travel: bool,
-    has_freedom: bool,
-    has_final: bool
+    has_pay_less_voice: bool,
+    has_5star_3star_voice: bool,
+    has_travel_more_voice: bool,
+    has_passive_income_voice: bool,
+    has_passive_income_final_voice: bool,
+    has_free_travel_voice: bool,
+    has_free_travel_final_voice: bool,
+    has_quit_job_voice: bool,
+    has_quit_job_final_voice: bool
 ) -> InlineKeyboardMarkup:
     """Меню персонализации воронки с индикаторами статусов"""
     welcome_status = "✅" if has_welcome else "❌"
-    passive_status = "✅" if has_passive_income else "❌"
-    travel_status = "✅" if has_travel else "❌"
-    freedom_status = "✅" if has_freedom else "❌"
-    final_status = "✅" if has_final else "❌"
+    pay_less_status = "✅" if has_pay_less_voice else "❌"
+    five_star_status = "✅" if has_5star_3star_voice else "❌"
+    travel_more_status = "✅" if has_travel_more_voice else "❌"
+    passive_income_status = "✅" if has_passive_income_voice else "❌"
+    passive_income_final_status = "✅" if has_passive_income_final_voice else "❌"
+    free_travel_status = "✅" if has_free_travel_voice else "❌"
+    free_travel_final_status = "✅" if has_free_travel_final_voice else "❌"
+    quit_job_status = "✅" if has_quit_job_voice else "❌"
+    quit_job_final_status = "✅" if has_quit_job_final_voice else "❌"
     
     return InlineKeyboardMarkup(inline_keyboard=[
         [InlineKeyboardButton(
-            text=f"📹 Приветствие (Кружок) {welcome_status}",
+            text=f"📹 КРУЖОК (Приветствие) {welcome_status}",
             callback_data="upload_welcome_video"
         )],
         [InlineKeyboardButton(
-            text=f"💸 Ветка: Деньги {passive_status}",
+            text=f"📉 ГОЛОС 'Платить меньше' {pay_less_status}",
+            callback_data="upload_pay_less_voice"
+        )],
+        [InlineKeyboardButton(
+            text=f"👑 ГОЛОС 'Жить в 5★ по цене 3★' {five_star_status}",
+            callback_data="upload_5star_3star_voice"
+        )],
+        [InlineKeyboardButton(
+            text=f"🌍 ГОЛОС 'Путешествовать чаще' {travel_more_status}",
+            callback_data="upload_travel_more_voice"
+        )],
+        [InlineKeyboardButton(
+            text=f"💸 ГОЛОС 'Пассивный доход' {passive_income_status}",
             callback_data="upload_passive_income_voice"
         )],
         [InlineKeyboardButton(
-            text=f"🌍 Ветка: Путешествия {travel_status}",
-            callback_data="upload_travel_voice"
+            text=f"🏁 ГОЛОС ФИНАЛ 'Пассивный доход' {passive_income_final_status}",
+            callback_data="upload_passive_income_final_voice"
         )],
         [InlineKeyboardButton(
-            text=f"🚀 Ветка: Свобода {freedom_status}",
-            callback_data="upload_freedom_voice"
+            text=f"🌍 ГОЛОС 'Путешествовать бесплатно' {free_travel_status}",
+            callback_data="upload_free_travel_voice"
         )],
         [InlineKeyboardButton(
-            text=f"🏁 Финал (Призыв) {final_status}",
-            callback_data="upload_final_voice"
+            text=f"🏁 ГОЛОС ФИНАЛ 'Путешествовать бесплатно' {free_travel_final_status}",
+            callback_data="upload_free_travel_final_voice"
+        )],
+        [InlineKeyboardButton(
+            text=f"🚀 ГОЛОС 'Уволиться из найма' {quit_job_status}",
+            callback_data="upload_quit_job_voice"
+        )],
+        [InlineKeyboardButton(
+            text=f"🏁 ГОЛОС ФИНАЛ 'Уволиться из найма' {quit_job_final_status}",
+            callback_data="upload_quit_job_final_voice"
         )],
         [InlineKeyboardButton(text="🔙 Назад в меню", callback_data="back_to_pro_menu")]
     ])

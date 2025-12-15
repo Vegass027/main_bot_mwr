@@ -15,6 +15,12 @@ class UserStates(StatesGroup):
     tourist_example = State()
     tourist_consultant = State()
     
+    # Новые состояния для ветки путешествий
+    travel_branch_selection = State()
+    travel_pay_less = State()
+    travel_5star_3star = State()
+    travel_more = State()
+    
     # Партнер - воронка
     partner_qualification = State()
     
@@ -37,10 +43,15 @@ class UserStates(StatesGroup):
     settings_menu = State()
     personalization_menu = State()
     awaiting_welcome_video = State()
+    awaiting_pay_less_voice = State()
+    awaiting_5star_3star_voice = State()
+    awaiting_travel_more_voice = State()
     awaiting_passive_income_voice = State()
-    awaiting_travel_voice = State()
-    awaiting_freedom_voice = State()
-    awaiting_final_voice = State()
+    awaiting_passive_income_final_voice = State()
+    awaiting_free_travel_voice = State()
+    awaiting_free_travel_final_voice = State()
+    awaiting_quit_job_voice = State()
+    awaiting_quit_job_final_voice = State()
     
     # Радар
     radar_view = State()

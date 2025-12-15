@@ -135,6 +135,18 @@ class UserService:
             update_values['voice_freedom_id'] = voice_ids['voice_freedom_id']
         if 'voice_final_cta_id' in voice_ids:
             update_values['voice_final_cta_id'] = voice_ids['voice_final_cta_id']
+        if 'voice_pay_less_id' in voice_ids:
+            update_values['voice_pay_less_id'] = voice_ids['voice_pay_less_id']
+        if 'voice_5star_3star_id' in voice_ids:
+            update_values['voice_5star_3star_id'] = voice_ids['voice_5star_3star_id']
+        if 'voice_travel_more_id' in voice_ids:
+            update_values['voice_travel_more_id'] = voice_ids['voice_travel_more_id']
+        if 'voice_passive_income_final_id' in voice_ids:
+            update_values['voice_passive_income_final_id'] = voice_ids['voice_passive_income_final_id']
+        if 'voice_free_travel_final_id' in voice_ids:
+            update_values['voice_free_travel_final_id'] = voice_ids['voice_free_travel_final_id']
+        if 'voice_quit_job_final_id' in voice_ids:
+            update_values['voice_quit_job_final_id'] = voice_ids['voice_quit_job_final_id']
         
         if update_values:
             await session.execute(
@@ -191,6 +203,76 @@ class UserService:
             update(User)
             .where(User.telegram_id == telegram_id)
             .values(voice_final_cta_id=voice_id)
+        )
+        # НЕ делаем commit
+    
+    @staticmethod
+    async def update_voice_pay_less(session: AsyncSession, telegram_id: str, voice_id: str):
+        """Обновить ID голосового для ветки Платить меньше"""
+        await session.execute(
+            update(User)
+            .where(User.telegram_id == telegram_id)
+            .values(voice_pay_less_id=voice_id)
+        )
+        # НЕ делаем commit
+    
+    @staticmethod
+    async def update_voice_5star_3star(session: AsyncSession, telegram_id: str, voice_id: str):
+        """Обновить ID голосового для ветки Жить в 5★ по цене 3★"""
+        await session.execute(
+            update(User)
+            .where(User.telegram_id == telegram_id)
+            .values(voice_5star_3star_id=voice_id)
+        )
+        # НЕ делаем commit
+    
+    @staticmethod
+    async def update_voice_travel_more(session: AsyncSession, telegram_id: str, voice_id: str):
+        """Обновить ID голосового для ветки Путешествовать чаще"""
+        await session.execute(
+            update(User)
+            .where(User.telegram_id == telegram_id)
+            .values(voice_travel_more_id=voice_id)
+        )
+        # НЕ делаем commit
+    
+    @staticmethod
+    async def update_voice_passive_income_final(session: AsyncSession, telegram_id: str, voice_id: str):
+        """Обновить ID финального голосового для ветки Пассивный доход"""
+        await session.execute(
+            update(User)
+            .where(User.telegram_id == telegram_id)
+            .values(voice_passive_income_final_id=voice_id)
+        )
+        # НЕ делаем commit
+    
+    @staticmethod
+    async def update_voice_free_travel(session: AsyncSession, telegram_id: str, voice_id: str):
+        """Обновить ID голосового для ветки Путешествовать бесплатно"""
+        await session.execute(
+            update(User)
+            .where(User.telegram_id == telegram_id)
+            .values(voice_free_travel_id=voice_id)
+        )
+        # НЕ делаем commit
+    
+    @staticmethod
+    async def update_voice_free_travel_final(session: AsyncSession, telegram_id: str, voice_id: str):
+        """Обновить ID финального голосового для ветки Путешествовать бесплатно"""
+        await session.execute(
+            update(User)
+            .where(User.telegram_id == telegram_id)
+            .values(voice_free_travel_final_id=voice_id)
+        )
+        # НЕ делаем commit
+    
+    @staticmethod
+    async def update_voice_quit_job_final(session: AsyncSession, telegram_id: str, voice_id: str):
+        """Обновить ID финального голосового для ветки Уволиться из найма"""
+        await session.execute(
+            update(User)
+            .where(User.telegram_id == telegram_id)
+            .values(voice_quit_job_final_id=voice_id)
         )
         # НЕ делаем commit
     

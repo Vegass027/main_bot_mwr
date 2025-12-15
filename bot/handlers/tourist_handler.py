@@ -4,7 +4,7 @@ from aiogram.fsm.context import FSMContext
 from sqlalchemy.ext.asyncio import AsyncSession
 from aiogram.exceptions import TelegramBadRequest
 
-from bot.keyboards.keyboards import get_tourist_menu, get_tourist_back_menu
+from bot.keyboards.keyboards import get_tourist_menu, get_tourist_back_menu, get_travel_branch_menu
 from bot.services.user_service import UserService
 from bot.utils.states import UserStates
 
@@ -37,7 +37,7 @@ Travel Advantage: 900€
 
 @router.callback_query(F.data == "tourist")
 async def tourist_menu(callback: CallbackQuery, state: FSMContext, session: AsyncSession):
-    """Показать меню туриста"""
+    """Показать меню выбора ветки путешествий"""
     
     telegram_id = str(callback.from_user.id)
     user = await UserService.get_user_by_telegram_id(session, telegram_id)
@@ -51,20 +51,210 @@ async def tourist_menu(callback: CallbackQuery, state: FSMContext, session: Asyn
             action_type="Нажал 'Путешествия'"
         )
     
+    # Текст для ветки путешествий
+    travel_branch_text = """**Уважаю выбор. Отдыхать — не работать 😉**
+
+Смотри, в туризме есть два лагеря:
+
+1️⃣ **Туристы** — кормят Booking, Островок, Яндекс и турагентов, переплачивая за рекламу и комиссии.
+
+2️⃣ **Путешественники (мы)** — берем те же отели по оптовым ценам напрямую. Без наценок.
+
+На картинке выше ☝️ — реальный пример, сколько денег улетает в трубу, если не знать, где бронировать.
+
+Чтобы я показал, как это сработает именно для тебя, скажи: **что тебе сейчас важнее всего?** 👇"""
+    
     try:
         await callback.message.edit_text(
-            TOURIST_INTRO,
-            reply_markup=get_tourist_menu()
+            travel_branch_text,
+            reply_markup=get_travel_branch_menu(),
+            parse_mode="Markdown"
         )
     except TelegramBadRequest as e:
         if "message is not modified" in str(e):
             # Если сообщение не изменилось, просто отправляем ответ на callback
-            await callback.answer("Меню туриста", show_alert=False)
+            await callback.answer("Выбор ветки путешествий", show_alert=False)
         else:
             # Если другая ошибка BadRequest, пробрасываем дальше
             raise
-    await state.set_state(UserStates.tourist_menu)
+    await state.set_state(UserStates.travel_branch_selection)
     await callback.answer()
+
+# Обработчики для новых веток путешествий
+@router.callback_query(F.data == "travel_pay_less")
+async def travel_pay_less(callback: CallbackQuery, state: FSMContext, session: AsyncSession):
+    """Ветка 'Платить меньше'"""
+    
+    telegram_id = str(callback.from_user.id)
+    user = await UserService.get_user_by_telegram_id(session, telegram_id)
+    
+    if user.referred_by_user_id:
+        await UserService.add_radar_event(
+            session=session,
+            partner_id=user.referred_by_user_id,
+            lead_id=user.id,
+            action_type="Выбрал: Платить меньше"
+        )
+    
+    # Текст для ветки "Платить меньше"
+    pay_less_text = """**Математика простая:**
+
+🏨 Отель хочет заработать хоть что-то, вместо 0.
+🛍 Мы выкупаем номера оптом.
+🤝 Ты получаешь цену без накруток посредников.
+
+**Пример на пальцах:**
+Это как покупать колу в ресторане за 200₽ или на оптовой базе за 40₽. Вкус тот же. Банка та же. Цена разная.
+
+Я собрал для тебя **реальные примеры** с нашей платформы в сравнении с Booking и Островком. Взгляни 👇"""
+    
+    try:
+        await callback.message.edit_text(pay_less_text)
+    except TelegramBadRequest as e:
+        if "message is not modified" in str(e):
+            # Если сообщение не изменилось, просто отправляем ответ на callback
+            await callback.answer("Платить меньше", show_alert=False)
+        else:
+            # Если другая ошибка BadRequest, пробрасываем дальше
+            raise
+    
+    # Получаем реферера
+    referrer = await UserService.get_referrer(session, user)
+    
+    # Если у реферера есть голосовое - отправляем
+    if referrer and referrer.voice_pay_less_id:
+        await asyncio.sleep(0.5)
+        await callback.message.answer_voice(voice=referrer.voice_pay_less_id)
+    
+    # Отправляем кнопку
+    await callback.message.answer(
+        "Жду тебя в клубе!❤️‍🔥",
+        reply_markup=InlineKeyboardMarkup(inline_keyboard=[
+            [InlineKeyboardButton(text="🔍 Показать примеры цен", url="https://clubsmarttravel.vercel.app/travel")]
+        ])
+    )
+    
+    await state.set_state(UserStates.travel_pay_less)
+    await callback.answer()
+
+@router.callback_query(F.data == "travel_5star_3star")
+async def travel_5star_3star(callback: CallbackQuery, state: FSMContext, session: AsyncSession):
+    """Ветка 'Жить в 5★ по цене 3★'"""
+    
+    telegram_id = str(callback.from_user.id)
+    user = await UserService.get_user_by_telegram_id(session, telegram_id)
+    
+    if user.referred_by_user_id:
+        await UserService.add_radar_event(
+            session=session,
+            partner_id=user.referred_by_user_id,
+            lead_id=user.id,
+            action_type="Выбрал: Жить в 5★ по цене 3★"
+        )
+    
+    # Текст для ветки "Жить в 5★ по цене 3★"
+    five_star_text = """**Не переплачивай за комфорт 🙅‍♂️**
+
+В туризме самая дикая наценка именно на дорогих турах. Агенты и сайты накручивают туда до 300%. Мы эту накрутку убираем.
+
+**Что тебе открывается:**
+
+✨ **Топовые отели** (уровня Rixos, Hilton, Radisson) по цене обычных "четверок".
+🏝 **Авторские туры** — наши закрытые поездки, где уже всё включено на максималках: проживание, экскурсии, вечеринки.
+🛥 **Круизы и Курорты** — недоступные для обычных туристов цены.
+
+Я хочу показать тебе реальные примеры, чтобы ты увидел разницу своими глазами.
+
+Жми кнопку ниже 👇"""
+    
+    try:
+        await callback.message.edit_text(five_star_text)
+    except TelegramBadRequest as e:
+        if "message is not modified" in str(e):
+            # Если сообщение не изменилось, просто отправляем ответ на callback
+            await callback.answer("Жить в 5★ по цене 3★", show_alert=False)
+        else:
+            # Если другая ошибка BadRequest, пробрасываем дальше
+            raise
+    
+    # Получаем реферера
+    referrer = await UserService.get_referrer(session, user)
+    
+    # Если у реферера есть голосовое - отправляем
+    if referrer and referrer.voice_5star_3star_id:
+        await asyncio.sleep(0.5)
+        await callback.message.answer_voice(voice=referrer.voice_5star_3star_id)
+    
+    # Отправляем кнопку
+    await callback.message.answer(
+        "Жду тебя в клубе!❤️‍🔥",
+        reply_markup=InlineKeyboardMarkup(inline_keyboard=[
+            [InlineKeyboardButton(text="💎 Показать премиум отдых", url="https://clubsmarttravel.vercel.app/travel")]
+        ])
+    )
+    
+    await state.set_state(UserStates.travel_5star_3star)
+    await callback.answer()
+
+@router.callback_query(F.data == "travel_more")
+async def travel_more(callback: CallbackQuery, state: FSMContext, session: AsyncSession):
+    """Ветка 'Путешествовать чаще'"""
+    
+    telegram_id = str(callback.from_user.id)
+    user = await UserService.get_user_by_telegram_id(session, telegram_id)
+    
+    if user.referred_by_user_id:
+        await UserService.add_radar_event(
+            session=session,
+            partner_id=user.referred_by_user_id,
+            lead_id=user.id,
+            action_type="Выбрал: Путешествовать чаще"
+        )
+    
+    # Текст для ветки "Путешествовать чаще"
+    travel_more_text = """**Путешествия станут неизбежными ✈️**
+
+Проблема не во времени. Проблема в том, что мы вечно откладываем жизнь и бюджет "на потом". Мы решили это через умную систему накоплений.
+
+**Как это работает:**
+
+🔄 **Модель подписки:** Ты делаешь небольшой взнос ежемесячно.
+💰 **100% Кэшбэк:** Эти деньги не уходят "за сервис", они падают на твой счет в виде баллов.
+📈 **Накопление:** Баллы не сгорают. Они копятся, пока ты не решишь поехать. 1Б=1$
+
+В итоге: ты просто живешь, а бюджет на отпуск формируется сам собой. 3-4 поездки в год становятся твоей новой нормой.
+
+Жми кнопку, покажу механику подробнее 👇"""
+    
+    try:
+        await callback.message.edit_text(travel_more_text)
+    except TelegramBadRequest as e:
+        if "message is not modified" in str(e):
+            # Если сообщение не изменилось, просто отправляем ответ на callback
+            await callback.answer("Путешествовать чаще", show_alert=False)
+        else:
+            # Если другая ошибка BadRequest, пробрасываем дальше
+            raise
+    
+    # Получаем реферера
+    referrer = await UserService.get_referrer(session, user)
+    
+    # Если у реферера есть голосовое - отправляем
+    if referrer and referrer.voice_travel_more_id:
+        await asyncio.sleep(0.5)
+        await callback.message.answer_voice(voice=referrer.voice_travel_more_id)
+    
+    # Отправляем кнопку
+    await callback.message.answer(
+        "Жду тебя в клубе!❤️‍🔥",
+        reply_markup=InlineKeyboardMarkup(inline_keyboard=[
+            [InlineKeyboardButton(text="✈️ Как это работает?", url="https://clubsmarttravel.vercel.app/travel")]
+        ])
+    )
+    
+    await state.set_state(UserStates.travel_more)
+    await callback.answer()
+
 
 @router.callback_query(F.data == "tourist_why_cheaper")
 async def tourist_why_cheaper(callback: CallbackQuery, state: FSMContext):

@@ -323,6 +323,18 @@ async def show_personalization_settings(callback: CallbackQuery, state: FSMConte
         character = profile_data.get('character', {})
         goals = profile_data.get('goals', {})
         
+        # Проверяем статусы персонализации
+        welcome_status = "✅" if user.welcome_video_id else "❌"
+        pay_less_status = "✅" if user.voice_pay_less_id else "❌"
+        five_star_status = "✅" if user.voice_5star_3star_id else "❌"
+        travel_more_status = "✅" if user.voice_travel_more_id else "❌"
+        passive_income_status = "✅" if user.voice_passive_income_id else "❌"
+        passive_income_final_status = "✅" if user.voice_passive_income_final_id else "❌"
+        free_travel_status = "✅" if user.voice_free_travel_id else "❌"
+        free_travel_final_status = "✅" if user.voice_free_travel_final_id else "❌"
+        quit_job_status = "✅" if user.voice_freedom_id else "❌"
+        quit_job_final_status = "✅" if user.voice_quit_job_final_id else "❌"
+        
         profile_summary = f"""⚙️ *НАСТРОЙКИ ПЕРСОНАЛИЗАЦИИ*
 
 Твой профиль уже заполнен.
@@ -333,6 +345,18 @@ async def show_personalization_settings(callback: CallbackQuery, state: FSMConte
 • Стиль общения: {character.get('communication_style', 'не указан')}
 • Travel-опыт: {travel.get('level', 'не указан')}, {travel.get('countries_count', '?')} стран
 • Основные цели: {', '.join(goals.get('main_goals', ['не указаны'])[:2])}
+
+*Статусы персонализации:*
+📹 КРУЖОК (Приветствие): {welcome_status}
+📉 ГОЛОС 'Платить меньше': {pay_less_status}
+👑 ГОЛОС 'Жить в 5★ по цене 3★': {five_star_status}
+🌍 ГОЛОС 'Путешествовать чаще': {travel_more_status}
+💸 ГОЛОС 'Пассивный доход': {passive_income_status}
+🏁 ГОЛОС ФИНАЛ 'Пассивный доход': {passive_income_final_status}
+🌍 ГОЛОС 'Путешествовать бесплатно': {free_travel_status}
+🏁 ГОЛОС ФИНАЛ 'Путешествовать бесплатно': {free_travel_final_status}
+🚀 ГОЛОС 'Уволиться из найма': {quit_job_status}
+🏁 ГОЛОС ФИНАЛ 'Уволиться из найма': {quit_job_final_status}
 
 Что хочешь сделать?"""
         
