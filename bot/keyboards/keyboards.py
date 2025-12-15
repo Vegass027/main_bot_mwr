@@ -477,39 +477,39 @@ def get_personalization_menu(
             callback_data="upload_welcome_video"
         )],
         [InlineKeyboardButton(
-            text=f"📉 ГОЛОС 'Платить меньше' {pay_less_status}",
+            text=f"📉 Платить меньше' {pay_less_status}",
             callback_data="upload_pay_less_voice"
         )],
         [InlineKeyboardButton(
-            text=f"👑 ГОЛОС 'Жить в 5★ по цене 3★' {five_star_status}",
+            text=f"👑 Жить в 5★ по цене 3★' {five_star_status}",
             callback_data="upload_5star_3star_voice"
         )],
         [InlineKeyboardButton(
-            text=f"🌍 ГОЛОС 'Путешествовать чаще' {travel_more_status}",
+            text=f"🌍 Путешествовать чаще' {travel_more_status}",
             callback_data="upload_travel_more_voice"
         )],
         [InlineKeyboardButton(
-            text=f"💸 ГОЛОС 'Пассивный доход' {passive_income_status}",
+            text=f"💸 Пассивный доход' {passive_income_status}",
             callback_data="upload_passive_income_voice"
         )],
         [InlineKeyboardButton(
-            text=f"🏁 ГОЛОС ФИНАЛ 'Пассивный доход' {passive_income_final_status}",
+            text=f"🏁 Пассивный доход.ч2' {passive_income_final_status}",
             callback_data="upload_passive_income_final_voice"
         )],
         [InlineKeyboardButton(
-            text=f"🌍 ГОЛОС 'Путешествовать бесплатно' {free_travel_status}",
+            text=f"🌍 Путешествовать бесплатно' {free_travel_status}",
             callback_data="upload_free_travel_voice"
         )],
         [InlineKeyboardButton(
-            text=f"🏁 ГОЛОС ФИНАЛ 'Путешествовать бесплатно' {free_travel_final_status}",
+            text=f"🏁 Путешествовать бесплатно.ч2' {free_travel_final_status}",
             callback_data="upload_free_travel_final_voice"
         )],
         [InlineKeyboardButton(
-            text=f"🚀 ГОЛОС 'Уволиться из найма' {quit_job_status}",
+            text=f"🚀 Уволиться из найма' {quit_job_status}",
             callback_data="upload_quit_job_voice"
         )],
         [InlineKeyboardButton(
-            text=f"🏁 ГОЛОС ФИНАЛ 'Уволиться из найма' {quit_job_final_status}",
+            text=f"🏁 Уволиться из найма.ч2' {quit_job_final_status}",
             callback_data="upload_quit_job_final_voice"
         )],
         [InlineKeyboardButton(text="🔙 Назад в меню", callback_data="back_to_pro_menu")]
