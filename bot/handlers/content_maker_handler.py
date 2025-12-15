@@ -336,49 +336,22 @@ async def show_personalization_settings(callback: CallbackQuery, state: FSMConte
 
 Что хочешь сделать?"""
         
-        try:
-            await callback.message.edit_text(
-                profile_summary,
-                reply_markup=get_content_maker_profile_view(),
-                parse_mode="Markdown"
-            )
-        except TelegramBadRequest as e:
-            if "message is not modified" in str(e):
-                # Если сообщение не изменилось, просто отправляем ответ на callback
-                await callback.answer("Настройки персонализации", show_alert=False)
-            else:
-                # Если другая ошибка BadRequest, пробрасываем дальше
-                raise
-        except Exception as e:
-            # Если не удалось отредактировать (например, сообщение удалено), отправляем новое
-            logger.debug(f"Не удалось отредактировать сообщение, отправляем новое: {e}")
-            await callback.message.answer(
-                profile_summary,
-                reply_markup=get_content_maker_profile_view(),
-                parse_mode="Markdown"
-            )
+        await safe_edit_or_send(
+            callback.message,
+            profile_summary,
+            reply_markup=get_content_maker_profile_view(),
+            parse_mode="Markdown"
+        )
         
         await state.set_state(ContentMakerStates.profile_view)
         
     except Exception as e:
         logger.error(f"Ошибка при отображении настроек персонализации: {e}", exc_info=True)
-        try:
-            await callback.message.edit_text(
-                "❌ Произошла ошибка при загрузке профиля.",
-                reply_markup=get_back_to_content_maker()
-            )
-        except TelegramBadRequest as e:
-            if "message is not modified" in str(e):
-                # Если сообщение не изменилось, просто отправляем ответ на callback
-                await callback.answer("Ошибка при загрузке профиля", show_alert=False)
-            else:
-                # Если другая ошибка BadRequest, пробрасываем дальше
-                raise
-        except Exception:
-            await callback.message.answer(
-                "❌ Произошла ошибка при загрузке профиля.",
-                reply_markup=get_back_to_content_maker()
-            )
+        await safe_edit_or_send(
+            callback.message,
+            "❌ Произошла ошибка при загрузке профиля.",
+            reply_markup=get_back_to_content_maker()
+        )
 
 
 @router.callback_query(F.data == "cm_profile_view_full")
