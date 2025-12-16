@@ -1,7 +1,8 @@
 import asyncio
+from pathlib import Path
 
 from aiogram import Router, F
-from aiogram.types import CallbackQuery, InlineKeyboardButton, InlineKeyboardMarkup, WebAppInfo
+from aiogram.types import CallbackQuery, InlineKeyboardButton, InlineKeyboardMarkup, WebAppInfo, FSInputFile
 from aiogram.fsm.context import FSMContext
 from sqlalchemy.ext.asyncio import AsyncSession
 from aiogram.exceptions import TelegramBadRequest
@@ -53,32 +54,71 @@ async def tourist_menu(callback: CallbackQuery, state: FSMContext, session: Asyn
             action_type="Нажал 'Путешествия'"
         )
     
-    # Текст для ветки путешествий
-    travel_branch_text = """**Уважаю твой выбор. Отдыхать — не работать 😉**
-
+    # Отправляем изображение с текстом
+    image_path = Path("Travel.jpg")
+    if image_path.exists():
+        photo = FSInputFile(image_path)
+        
+        # Текст для ветки путешествий
+        travel_branch_text = """**Уважаю твой выбор. Отдыхать — не работать 😉**
+        
 Смотри, в туризме есть два лагеря:
-
+        
 1️⃣ **Туристы** — кормят Booking, Островок, Яндекс и турагентов, переплачивая за рекламу и комиссии.
-
+        
 2️⃣ **Путешественники (мы)** — берем те же отели по оптовым ценам напрямую. Без наценок.
-
+        
 На картинке выше ☝️ — реальный пример, сколько денег улетает в трубу, если не знать, где бронировать.
-
+        
 Чтобы я показал, как это сработает именно для тебя, скажи: **что тебе сейчас важнее всего?** 👇"""
+        
+        try:
+            await callback.message.answer_photo(
+                photo=photo,
+                caption=travel_branch_text,
+                reply_markup=get_travel_branch_menu(),
+                parse_mode="Markdown"
+            )
+            # Удаляем старое сообщение, если оно было
+            try:
+                await callback.message.delete()
+            except:
+                pass  # Если не удалось удалить, не страшно
+        except Exception as e:
+            # Если не удалось отправить фото, отправляем просто текст
+            await callback.message.edit_text(
+                travel_branch_text,
+                reply_markup=get_travel_branch_menu(),
+                parse_mode="Markdown"
+            )
+    else:
+        # Если изображение не найдено, отправляем просто текст
+        travel_branch_text = """**Уважаю твой выбор. Отдыхать — не работать 😉**
+        
+Смотри, в туризме есть два лагеря:
+        
+1️⃣ **Туристы** — кормят Booking, Островок, Яндекс и турагентов, переплачивая за рекламу и комиссии.
+        
+2️⃣ **Путешественники (мы)** — берем те же отели по оптовым ценам напрямую. Без наценок.
+        
+На картинке выше ☝️ — реальный пример, сколько денег улетает в трубу, если не знать, где бронировать.
+        
+Чтобы я показал, как это сработает именно для тебя, скажи: **что тебе сейчас важнее всего?** 👇"""
+        
+        try:
+            await callback.message.edit_text(
+                travel_branch_text,
+                reply_markup=get_travel_branch_menu(),
+                parse_mode="Markdown"
+            )
+        except TelegramBadRequest as e:
+            if "message is not modified" in str(e):
+                # Если сообщение не изменилось, просто отправляем ответ на callback
+                await callback.answer("Выбор ветки путешествий", show_alert=False)
+            else:
+                # Если другая ошибка BadRequest, пробрасываем дальше
+                raise
     
-    try:
-        await callback.message.edit_text(
-            travel_branch_text,
-            reply_markup=get_travel_branch_menu(),
-            parse_mode="Markdown"
-        )
-    except TelegramBadRequest as e:
-        if "message is not modified" in str(e):
-            # Если сообщение не изменилось, просто отправляем ответ на callback
-            await callback.answer("Выбор ветки путешествий", show_alert=False)
-        else:
-            # Если другая ошибка BadRequest, пробрасываем дальше
-            raise
     await state.set_state(UserStates.travel_branch_selection)
     await callback.answer()
 

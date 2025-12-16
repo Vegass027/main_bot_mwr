@@ -1,10 +1,12 @@
+from pathlib import Path
+
 from aiogram import Router, F
 from aiogram.types import CallbackQuery
 from aiogram.fsm.context import FSMContext
 from sqlalchemy.ext.asyncio import AsyncSession
 import asyncio
 from aiogram.exceptions import TelegramBadRequest
-from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
+from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton, FSInputFile
 
 from bot.keyboards.keyboards import (
     get_partner_qualification_menu,
@@ -135,18 +137,44 @@ async def partner_qualification(callback: CallbackQuery, state: FSMContext, sess
             action_type="Нажал 'Бизнес'"
         )
     
-    try:
-        await callback.message.edit_text(
-            PARTNER_QUALIFICATION,
-            reply_markup=get_partner_qualification_menu()
-        )
-    except TelegramBadRequest as e:
-        if "message is not modified" in str(e):
-            # Если сообщение не изменилось, просто отправляем ответ на callback
-            await callback.answer("Квалификация партнера", show_alert=False)
-        else:
-            # Если другая ошибка BadRequest, пробрасываем дальше
-            raise
+    # Отправляем изображение с текстом
+    image_path = Path("Buisness.jpg")
+    if image_path.exists():
+        photo = FSInputFile(image_path)
+        
+        try:
+            await callback.message.answer_photo(
+                photo=photo,
+                caption=PARTNER_QUALIFICATION,
+                reply_markup=get_partner_qualification_menu(),
+                parse_mode="Markdown"
+            )
+            # Удаляем старое сообщение, если оно было
+            try:
+                await callback.message.delete()
+            except:
+                pass  # Если не удалось удалить, не страшно
+        except Exception as e:
+            # Если не удалось отправить фото, отправляем просто текст
+            await callback.message.edit_text(
+                PARTNER_QUALIFICATION,
+                reply_markup=get_partner_qualification_menu()
+            )
+    else:
+        # Если изображение не найдено, отправляем просто текст
+        try:
+            await callback.message.edit_text(
+                PARTNER_QUALIFICATION,
+                reply_markup=get_partner_qualification_menu()
+            )
+        except TelegramBadRequest as e:
+            if "message is not modified" in str(e):
+                # Если сообщение не изменилось, просто отправляем ответ на callback
+                await callback.answer("Квалификация партнера", show_alert=False)
+            else:
+                # Если другая ошибка BadRequest, пробрасываем дальше
+                raise
+    
     await state.set_state(UserStates.partner_qualification)
     await callback.answer()
 
