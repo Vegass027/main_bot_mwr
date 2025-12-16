@@ -269,7 +269,7 @@ async def partner_show_income_scheme(callback: CallbackQuery, state: FSMContext,
     await callback.message.answer(
         "Жду тебя в клубе!❤️‍🔥",
         reply_markup=InlineKeyboardMarkup(inline_keyboard=[
-            [InlineKeyboardButton(text="📲 Открыть Бизнес-Систему", url="https://clubsmarttravel.vercel.app/")]
+            [InlineKeyboardButton(text="📲 Открыть Бизнес-Систему", url="https://clubsmarttravel.vercel.app/?source=business")]
         ])
     )
     
@@ -360,7 +360,7 @@ async def partner_show_travel_how(callback: CallbackQuery, state: FSMContext, se
     await callback.message.answer(
         "Жду тебя в клубе!❤️‍🔥",
         reply_markup=InlineKeyboardMarkup(inline_keyboard=[
-            [InlineKeyboardButton(text="📲 Открыть Стратегию", url="https://clubsmarttravel.vercel.app/")]
+            [InlineKeyboardButton(text="📲 Открыть Стратегию", url="https://clubsmarttravel.vercel.app/?source=business")]
         ])
     )
     
@@ -451,7 +451,7 @@ async def partner_show_quit_plan(callback: CallbackQuery, state: FSMContext, ses
     await callback.message.answer(
         "Жду тебя в нашем клубе!❤️‍🔥",
         reply_markup=InlineKeyboardMarkup(inline_keyboard=[
-            [InlineKeyboardButton(text="📲 Открыть Систему", url="https://clubsmarttravel.vercel.app/")]
+            [InlineKeyboardButton(text="📲 Открыть Систему", url="https://clubsmarttravel.vercel.app/?source=business")]
         ])
     )
     
