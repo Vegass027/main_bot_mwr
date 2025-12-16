@@ -32,7 +32,7 @@ def get_pro_menu() -> InlineKeyboardMarkup:
             InlineKeyboardButton(text="🔗 Моя реферальная ссылка", callback_data="my_referral_link")
         ],
         [
-            InlineKeyboardButton(text="🏢 МОЙ ОФИС", web_app=WebAppInfo(url="https://wmrlifenew1.vercel.app/"))
+            InlineKeyboardButton(text="🏢 МОЙ ОФИС", web_app=WebAppInfo(url="https://clubsmarttravel.vercel.app/"))
         ]
     ])
 

@@ -187,7 +187,7 @@ async def partner_passive_income(callback: CallbackQuery, state: FSMContext, ses
     
     # Отправляем кнопку
     await callback.message.answer(
-        "Жду тебя в клубе!❤️‍🔥",
+        "Ну кайф же, скажи?😎",
         reply_markup=InlineKeyboardMarkup(inline_keyboard=[
             [InlineKeyboardButton(text="📉 Показать схему дохода", callback_data="partner_show_income_scheme")]
         ])
@@ -234,7 +234,7 @@ async def partner_show_income_scheme(callback: CallbackQuery, state: FSMContext,
     await callback.message.answer(
         "Жду тебя в клубе!❤️‍🔥",
         reply_markup=InlineKeyboardMarkup(inline_keyboard=[
-            [InlineKeyboardButton(text="📲 Открыть Бизнес-Систему", url="https://clubsmarttravel.vercel.app/buisness")]
+            [InlineKeyboardButton(text="📲 Открыть Бизнес-Систему", url="https://clubsmarttravel.vercel.app/")]
         ])
     )
     
@@ -278,7 +278,7 @@ async def partner_travel_free(callback: CallbackQuery, state: FSMContext, sessio
     
     # Отправляем кнопку
     await callback.message.answer(
-        "Жду тебя в клубе!❤️‍🔥",
+        "А что, так можно было?😂",
         reply_markup=InlineKeyboardMarkup(inline_keyboard=[
             [InlineKeyboardButton(text="✈️ Как начать летать бесплатно?", callback_data="partner_show_travel_how")]
         ])
@@ -325,7 +325,7 @@ async def partner_show_travel_how(callback: CallbackQuery, state: FSMContext, se
     await callback.message.answer(
         "Жду тебя в клубе!❤️‍🔥",
         reply_markup=InlineKeyboardMarkup(inline_keyboard=[
-            [InlineKeyboardButton(text="📲 Открыть Стратегию", url="https://clubsmarttravel.vercel.app/buisness")]
+            [InlineKeyboardButton(text="📲 Открыть Стратегию", url="https://clubsmarttravel.vercel.app/")]
         ])
     )
     
@@ -369,7 +369,7 @@ async def partner_quit_job(callback: CallbackQuery, state: FSMContext, session: 
     
     # Отправляем кнопку
     await callback.message.answer(
-        "Жду тебя в клубе!❤️‍🔥",
+        "Жизнь До и После. Смотри👇🏻",
         reply_markup=InlineKeyboardMarkup(inline_keyboard=[
             [InlineKeyboardButton(text="🧩 Посмотреть стратегию", callback_data="partner_show_quit_plan")]
         ])
@@ -416,7 +416,7 @@ async def partner_show_quit_plan(callback: CallbackQuery, state: FSMContext, ses
     await callback.message.answer(
         "Жду тебя в нашем клубе!❤️‍🔥",
         reply_markup=InlineKeyboardMarkup(inline_keyboard=[
-            [InlineKeyboardButton(text="📲 Открыть Систему", url="https://clubsmarttravel.vercel.app/buisness")]
+            [InlineKeyboardButton(text="📲 Открыть Систему", url="https://clubsmarttravel.vercel.app/")]
         ])
     )
     
