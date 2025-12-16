@@ -156,10 +156,17 @@ async def partner_qualification(callback: CallbackQuery, state: FSMContext, sess
                 pass  # Если не удалось удалить, не страшно
         except Exception as e:
             # Если не удалось отправить фото, отправляем просто текст
-            await callback.message.edit_text(
-                PARTNER_QUALIFICATION,
-                reply_markup=get_partner_qualification_menu()
-            )
+            try:
+                await callback.message.edit_text(
+                    PARTNER_QUALIFICATION,
+                    reply_markup=get_partner_qualification_menu()
+                )
+            except TelegramBadRequest:
+                # Если не можем отредактировать сообщение, отправляем новое
+                await callback.message.answer(
+                    PARTNER_QUALIFICATION,
+                    reply_markup=get_partner_qualification_menu()
+                )
     else:
         # Если изображение не найдено, отправляем просто текст
         try:
@@ -198,9 +205,9 @@ async def partner_passive_income(callback: CallbackQuery, state: FSMContext, ses
     try:
         await callback.message.edit_text(PARTNER_PASSIVE_INCOME, parse_mode="Markdown")
     except TelegramBadRequest as e:
-        if "message is not modified" in str(e):
-            # Если сообщение не изменилось, просто отправляем ответ на callback
-            await callback.answer("Пассивный доход", show_alert=False)
+        if "message is not modified" in str(e) or "there is no text in the message to edit" in str(e):
+            # Если сообщение не изменилось или нет текста для редактирования, отправляем новое сообщение
+            await callback.message.answer(PARTNER_PASSIVE_INCOME, parse_mode="Markdown")
         else:
             # Если другая ошибка BadRequest, пробрасываем дальше
             raise
@@ -289,9 +296,9 @@ async def partner_travel_free(callback: CallbackQuery, state: FSMContext, sessio
     try:
         await callback.message.edit_text(PARTNER_TRAVEL_FREE, parse_mode="Markdown")
     except TelegramBadRequest as e:
-        if "message is not modified" in str(e):
-            # Если сообщение не изменилось, просто отправляем ответ на callback
-            await callback.answer("Путешествовать бесплатно", show_alert=False)
+        if "message is not modified" in str(e) or "there is no text in the message to edit" in str(e):
+            # Если сообщение не изменилось или нет текста для редактирования, отправляем новое сообщение
+            await callback.message.answer(PARTNER_TRAVEL_FREE, parse_mode="Markdown")
         else:
             # Если другая ошибка BadRequest, пробрасываем дальше
             raise
@@ -380,9 +387,9 @@ async def partner_quit_job(callback: CallbackQuery, state: FSMContext, session: 
     try:
         await callback.message.edit_text(PARTNER_QUIT_JOB, parse_mode="Markdown")
     except TelegramBadRequest as e:
-        if "message is not modified" in str(e):
-            # Если сообщение не изменилось, просто отправляем ответ на callback
-            await callback.answer("Уволиться из найма", show_alert=False)
+        if "message is not modified" in str(e) or "there is no text in the message to edit" in str(e):
+            # Если сообщение не изменилось или нет текста для редактирования, отправляем новое сообщение
+            await callback.message.answer(PARTNER_QUIT_JOB, parse_mode="Markdown")
         else:
             # Если другая ошибка BadRequest, пробрасываем дальше
             raise

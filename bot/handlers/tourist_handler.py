@@ -86,11 +86,19 @@ async def tourist_menu(callback: CallbackQuery, state: FSMContext, session: Asyn
                 pass  # Если не удалось удалить, не страшно
         except Exception as e:
             # Если не удалось отправить фото, отправляем просто текст
-            await callback.message.edit_text(
-                travel_branch_text,
-                reply_markup=get_travel_branch_menu(),
-                parse_mode="Markdown"
-            )
+            try:
+                await callback.message.edit_text(
+                    travel_branch_text,
+                    reply_markup=get_travel_branch_menu(),
+                    parse_mode="Markdown"
+                )
+            except TelegramBadRequest:
+                # Если не можем отредактировать сообщение, отправляем новое
+                await callback.message.answer(
+                    travel_branch_text,
+                    reply_markup=get_travel_branch_menu(),
+                    parse_mode="Markdown"
+                )
     else:
         # Если изображение не найдено, отправляем просто текст
         travel_branch_text = """**Уважаю твой выбор. Отдыхать — не работать 😉**
@@ -153,9 +161,9 @@ async def travel_pay_less(callback: CallbackQuery, state: FSMContext, session: A
     try:
         await callback.message.edit_text(pay_less_text)
     except TelegramBadRequest as e:
-        if "message is not modified" in str(e):
-            # Если сообщение не изменилось, просто отправляем ответ на callback
-            await callback.answer("Платить меньше", show_alert=False)
+        if "message is not modified" in str(e) or "there is no text in the message to edit" in str(e):
+            # Если сообщение не изменилось или нет текста для редактирования, отправляем новое сообщение
+            await callback.message.answer(pay_less_text, parse_mode="Markdown")
         else:
             # Если другая ошибка BadRequest, пробрасываем дальше
             raise
@@ -212,9 +220,9 @@ async def travel_5star_3star(callback: CallbackQuery, state: FSMContext, session
     try:
         await callback.message.edit_text(five_star_text)
     except TelegramBadRequest as e:
-        if "message is not modified" in str(e):
-            # Если сообщение не изменилось, просто отправляем ответ на callback
-            await callback.answer("Жить в 5★ по цене 3★", show_alert=False)
+        if "message is not modified" in str(e) or "there is no text in the message to edit" in str(e):
+            # Если сообщение не изменилось или нет текста для редактирования, отправляем новое сообщение
+            await callback.message.answer(five_star_text, parse_mode="Markdown")
         else:
             # Если другая ошибка BadRequest, пробрасываем дальше
             raise
@@ -271,9 +279,9 @@ async def travel_more(callback: CallbackQuery, state: FSMContext, session: Async
     try:
         await callback.message.edit_text(travel_more_text)
     except TelegramBadRequest as e:
-        if "message is not modified" in str(e):
-            # Если сообщение не изменилось, просто отправляем ответ на callback
-            await callback.answer("Путешествовать чаще", show_alert=False)
+        if "message is not modified" in str(e) or "there is no text in the message to edit" in str(e):
+            # Если сообщение не изменилось или нет текста для редактирования, отправляем новое сообщение
+            await callback.message.answer(travel_more_text, parse_mode="Markdown")
         else:
             # Если другая ошибка BadRequest, пробрасываем дальше
             raise

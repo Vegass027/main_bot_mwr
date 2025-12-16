@@ -94,9 +94,12 @@ async def back_to_main_menu(callback: CallbackQuery, state: FSMContext, session:
             reply_markup=get_guest_menu() if user.subscription_status == 'FREE' else get_pro_menu()
         )
     except TelegramBadRequest as e:
-        if "message is not modified" in str(e):
-            # Если сообщение не изменилось, просто отправляем ответ на callback
-            await callback.answer("Вы в главном меню", show_alert=False)
+        if "message is not modified" in str(e) or "there is no text in the message to edit" in str(e):
+            # Если сообщение не изменилось или нет текста для редактирования, отправляем новое сообщение
+            await callback.message.answer(
+                "Что вас интересует?",
+                reply_markup=get_guest_menu() if user.subscription_status == 'FREE' else get_pro_menu()
+            )
         else:
             # Если другая ошибка BadRequest, пробрасываем дальше
             raise
