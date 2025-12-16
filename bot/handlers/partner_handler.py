@@ -6,7 +6,7 @@ from aiogram.fsm.context import FSMContext
 from sqlalchemy.ext.asyncio import AsyncSession
 import asyncio
 from aiogram.exceptions import TelegramBadRequest
-from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton, FSInputFile
+from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton, FSInputFile, WebAppInfo
 
 from bot.keyboards.keyboards import (
     get_partner_qualification_menu,
@@ -269,7 +269,7 @@ async def partner_show_income_scheme(callback: CallbackQuery, state: FSMContext,
     await callback.message.answer(
         "Жду тебя в клубе!❤️‍🔥",
         reply_markup=InlineKeyboardMarkup(inline_keyboard=[
-            [InlineKeyboardButton(text="📲 Открыть Бизнес-Систему", url="https://clubsmarttravel.vercel.app/?source=business")]
+            [InlineKeyboardButton(text="📲 Открыть Бизнес-Систему", web_app=WebAppInfo(url="https://clubsmarttravel.vercel.app/?source=business"))]
         ])
     )
     
@@ -360,7 +360,7 @@ async def partner_show_travel_how(callback: CallbackQuery, state: FSMContext, se
     await callback.message.answer(
         "Жду тебя в клубе!❤️‍🔥",
         reply_markup=InlineKeyboardMarkup(inline_keyboard=[
-            [InlineKeyboardButton(text="📲 Открыть Стратегию", url="https://clubsmarttravel.vercel.app/?source=business")]
+            [InlineKeyboardButton(text="📲 Открыть Стратегию", web_app=WebAppInfo(url="https://clubsmarttravel.vercel.app/?source=business"))]
         ])
     )
     
@@ -451,7 +451,7 @@ async def partner_show_quit_plan(callback: CallbackQuery, state: FSMContext, ses
     await callback.message.answer(
         "Жду тебя в нашем клубе!❤️‍🔥",
         reply_markup=InlineKeyboardMarkup(inline_keyboard=[
-            [InlineKeyboardButton(text="📲 Открыть Систему", url="https://clubsmarttravel.vercel.app/?source=business")]
+            [InlineKeyboardButton(text="📲 Открыть Систему", web_app=WebAppInfo(url="https://clubsmarttravel.vercel.app/?source=business"))]
         ])
     )
     
