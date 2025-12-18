@@ -51,9 +51,6 @@ def upgrade() -> None:
     sa.Column('welcome_video_id', sa.String(), nullable=True),
     sa.Column('current_bot_menu', sa.String(), nullable=True),
     sa.Column('business_instruction_link', sa.Text(), nullable=True),
-    sa.Column('link_registration_mwr', sa.Text(), nullable=True),
-    sa.Column('link_travel_advantage', sa.Text(), nullable=True),
-    sa.Column('link_crypto_service', sa.Text(), nullable=True),
     sa.ForeignKeyConstraint(['referred_by_user_id'], ['users.id'], ),
     sa.PrimaryKeyConstraint('id')
     )

@@ -56,9 +56,6 @@ class User(Base):
     business_instruction_link = Column(Text, nullable=True)
     
     # Links
-    link_registration_mwr = Column(Text, nullable=True)
-    link_travel_advantage = Column(Text, nullable=True)
-    link_crypto_service = Column(Text, nullable=True)
     
     # Relationships
     referrer = relationship("User", remote_side=[id], backref="referrals")
