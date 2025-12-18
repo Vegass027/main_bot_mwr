@@ -53,8 +53,6 @@ class User(Base):
     voice_quit_job_final_id = Column(String, nullable=True)
     welcome_video_id = Column(String, nullable=True)
     current_bot_menu = Column(String, default='guest')
-    business_instruction_link = Column(Text, nullable=True)
-    
     # Links
     
     # Relationships
