@@ -12,18 +12,18 @@ def get_guest_menu() -> InlineKeyboardMarkup:
 def get_pro_menu() -> InlineKeyboardMarkup:
     """Панель инструментов для PRO пользователей"""
     return InlineKeyboardMarkup(inline_keyboard=[
-        [
-            InlineKeyboardButton(text="🤖 AI-Наставник", callback_data="ai_mentor"),
-            InlineKeyboardButton(text="🗺 Трэвел-Архитектор", callback_data="travel_architect")
-        ],
-        [
-            InlineKeyboardButton(text="✍️ Контент-Мейкер", callback_data="content_maker"),
-            InlineKeyboardButton(text="🎨 AI-Дизайнер", callback_data="ai_designer")
-        ],
-        [
-            InlineKeyboardButton(text="🥊 Тренажер", callback_data="trainer"),
-            InlineKeyboardButton(text="🧮 Калькулятор", callback_data="calculator")
-        ],
+        # [
+        #     InlineKeyboardButton(text="🤖 AI-Наставник", callback_data="ai_mentor"),
+        #     InlineKeyboardButton(text="🗺 Трэвел-Архитектор", callback_data="travel_architect")
+        # ],
+        # [
+        #     InlineKeyboardButton(text="✍️ Контент-Мейкер", callback_data="content_maker"),
+        #     InlineKeyboardButton(text="🎨 AI-Дизайнер", callback_data="ai_designer")
+        # ],
+        # [
+        #     InlineKeyboardButton(text="🥊 Тренажер", callback_data="trainer"),
+        #     InlineKeyboardButton(text="🧮 Калькулятор", callback_data="calculator")
+        # ],
         [
             InlineKeyboardButton(text="🎨 Персонализация воронки", callback_data="personalization"),
             InlineKeyboardButton(text="🕵️ Радар", callback_data="radar")
