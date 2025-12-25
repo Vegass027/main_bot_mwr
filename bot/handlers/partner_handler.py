@@ -201,31 +201,25 @@ async def partner_passive_income(callback: CallbackQuery, state: FSMContext, ses
             action_type="Выбрал: Пассивный доход"
         )
     
-    # Отправляем текст
     try:
-        await callback.message.edit_text(PARTNER_PASSIVE_INCOME, parse_mode="Markdown")
-    except TelegramBadRequest as e:
-        if "message is not modified" in str(e) or "there is no text in the message to edit" in str(e):
-            # Если сообщение не изменилось или нет текста для редактирования, отправляем новое сообщение
-            await callback.message.answer(PARTNER_PASSIVE_INCOME, parse_mode="Markdown")
-        else:
-            # Если другая ошибка BadRequest, пробрасываем дальше
-            raise
-    
+        await callback.message.delete()
+    except TelegramBadRequest:
+        pass  # Игнорируем ошибку
+
     # Получаем реферера
     referrer = await UserService.get_referrer(session, user)
     
     # Если у реферера есть голосовое - отправляем
     if referrer and referrer.voice_passive_income_id:
-        await asyncio.sleep(0.5)
         await callback.message.answer_voice(voice=referrer.voice_passive_income_id)
     
-    # Отправляем кнопку
+    # Отправляем основной текст с кнопкой
     await callback.message.answer(
-        "Ну кайф же, скажи?😎",
+        PARTNER_PASSIVE_INCOME,
         reply_markup=InlineKeyboardMarkup(inline_keyboard=[
             [InlineKeyboardButton(text="📉 Показать схему дохода", callback_data="partner_show_income_scheme")]
-        ])
+        ]),
+        parse_mode="Markdown"
     )
     
     await state.set_state(UserStates.partner_passive_income)
@@ -246,31 +240,25 @@ async def partner_show_income_scheme(callback: CallbackQuery, state: FSMContext,
             action_type="Нажал 'Показать схему дохода'"
         )
     
-    # Отправляем текст
     try:
-        await callback.message.edit_text(PARTNER_PASSIVE_INCOME_FINAL, parse_mode="Markdown")
-    except TelegramBadRequest as e:
-        if "message is not modified" in str(e):
-            # Если сообщение не изменилось, просто отправляем ответ на callback
-            await callback.answer("Схема дохода", show_alert=False)
-        else:
-            # Если другая ошибка BadRequest, пробрасываем дальше
-            raise
-    
+        await callback.message.delete()
+    except TelegramBadRequest:
+        pass # Игнорируем
+
     # Получаем реферера
     referrer = await UserService.get_referrer(session, user)
     
     # Если у реферера есть финальное голосовое - отправляем
     if referrer and referrer.voice_passive_income_final_id:
-        await asyncio.sleep(0.5)
         await callback.message.answer_voice(voice=referrer.voice_passive_income_final_id)
     
-    # Отправляем кнопки
+    # Отправляем основной текст с кнопкой
     await callback.message.answer(
-        "Жду тебя в клубе!❤️‍🔥",
+        PARTNER_PASSIVE_INCOME_FINAL,
         reply_markup=InlineKeyboardMarkup(inline_keyboard=[
             [InlineKeyboardButton(text="📲 Открыть Бизнес-Систему", web_app=WebAppInfo(url="https://clubsmarttravel.vercel.app/?source=business"))]
-        ])
+        ]),
+        parse_mode="Markdown"
     )
     
     await state.set_state(UserStates.partner_passive_income_final)
@@ -292,31 +280,25 @@ async def partner_travel_free(callback: CallbackQuery, state: FSMContext, sessio
             action_type="Выбрал: Путешествовать бесплатно"
         )
     
-    # Отправляем текст
     try:
-        await callback.message.edit_text(PARTNER_TRAVEL_FREE, parse_mode="Markdown")
-    except TelegramBadRequest as e:
-        if "message is not modified" in str(e) or "there is no text in the message to edit" in str(e):
-            # Если сообщение не изменилось или нет текста для редактирования, отправляем новое сообщение
-            await callback.message.answer(PARTNER_TRAVEL_FREE, parse_mode="Markdown")
-        else:
-            # Если другая ошибка BadRequest, пробрасываем дальше
-            raise
-    
+        await callback.message.delete()
+    except TelegramBadRequest:
+        pass # Игнорируем
+
     # Получаем реферера
     referrer = await UserService.get_referrer(session, user)
     
     # Если у реферера есть голосовое - отправляем
     if referrer and referrer.voice_free_travel_id:
-        await asyncio.sleep(0.5)
         await callback.message.answer_voice(voice=referrer.voice_free_travel_id)
     
-    # Отправляем кнопку
+    # Отправляем основной текст с кнопкой
     await callback.message.answer(
-        "А что, так можно было?😂",
+        PARTNER_TRAVEL_FREE,
         reply_markup=InlineKeyboardMarkup(inline_keyboard=[
             [InlineKeyboardButton(text="✈️ Как начать летать бесплатно?", callback_data="partner_show_travel_how")]
-        ])
+        ]),
+        parse_mode="Markdown"
     )
     
     await state.set_state(UserStates.partner_travel_free)
@@ -337,31 +319,25 @@ async def partner_show_travel_how(callback: CallbackQuery, state: FSMContext, se
             action_type="Нажал 'Как начать летать бесплатно'"
         )
     
-    # Отправляем текст
     try:
-        await callback.message.edit_text(PARTNER_TRAVEL_FREE_FINAL, parse_mode="Markdown")
-    except TelegramBadRequest as e:
-        if "message is not modified" in str(e):
-            # Если сообщение не изменилось, просто отправляем ответ на callback
-            await callback.answer("Как начать летать бесплатно", show_alert=False)
-        else:
-            # Если другая ошибка BadRequest, пробрасываем дальше
-            raise
-    
+        await callback.message.delete()
+    except TelegramBadRequest:
+        pass # Игнорируем
+
     # Получаем реферера
     referrer = await UserService.get_referrer(session, user)
     
     # Если у реферера есть финальное голосовое - отправляем
     if referrer and referrer.voice_free_travel_final_id:
-        await asyncio.sleep(0.5)
         await callback.message.answer_voice(voice=referrer.voice_free_travel_final_id)
     
-    # Отправляем кнопки
+    # Отправляем основной текст с кнопкой
     await callback.message.answer(
-        "Жду тебя в клубе!❤️‍🔥",
+        PARTNER_TRAVEL_FREE_FINAL,
         reply_markup=InlineKeyboardMarkup(inline_keyboard=[
             [InlineKeyboardButton(text="📲 Открыть Стратегию", web_app=WebAppInfo(url="https://clubsmarttravel.vercel.app/?source=business"))]
-        ])
+        ]),
+        parse_mode="Markdown"
     )
     
     await state.set_state(UserStates.partner_travel_free_final)
@@ -383,31 +359,25 @@ async def partner_quit_job(callback: CallbackQuery, state: FSMContext, session: 
             action_type="Выбрал: Уволиться из найма"
         )
     
-    # Отправляем текст
     try:
-        await callback.message.edit_text(PARTNER_QUIT_JOB, parse_mode="Markdown")
-    except TelegramBadRequest as e:
-        if "message is not modified" in str(e) or "there is no text in the message to edit" in str(e):
-            # Если сообщение не изменилось или нет текста для редактирования, отправляем новое сообщение
-            await callback.message.answer(PARTNER_QUIT_JOB, parse_mode="Markdown")
-        else:
-            # Если другая ошибка BadRequest, пробрасываем дальше
-            raise
-    
+        await callback.message.delete()
+    except TelegramBadRequest:
+        pass # Игнорируем
+
     # Получаем реферера
     referrer = await UserService.get_referrer(session, user)
     
     # Если у реферера есть голосовое - отправляем
     if referrer and referrer.voice_freedom_id:
-        await asyncio.sleep(0.5)
         await callback.message.answer_voice(voice=referrer.voice_freedom_id)
     
-    # Отправляем кнопку
+    # Отправляем основной текст с кнопкой
     await callback.message.answer(
-        "Жизнь До и После. Смотри👇🏻",
+        PARTNER_QUIT_JOB,
         reply_markup=InlineKeyboardMarkup(inline_keyboard=[
             [InlineKeyboardButton(text="🧩 Посмотреть стратегию", callback_data="partner_show_quit_plan")]
-        ])
+        ]),
+        parse_mode="Markdown"
     )
     
     await state.set_state(UserStates.partner_quit_job)
@@ -428,31 +398,25 @@ async def partner_show_quit_plan(callback: CallbackQuery, state: FSMContext, ses
             action_type="Нажал 'План побега из найма'"
         )
     
-    # Отправляем текст
     try:
-        await callback.message.edit_text(PARTNER_QUIT_JOB_FINAL, parse_mode="Markdown")
-    except TelegramBadRequest as e:
-        if "message is not modified" in str(e):
-            # Если сообщение не изменилось, просто отправляем ответ на callback
-            await callback.answer("План побега из найма", show_alert=False)
-        else:
-            # Если другая ошибка BadRequest, пробрасываем дальше
-            raise
-    
+        await callback.message.delete()
+    except TelegramBadRequest:
+        pass # Игнорируем
+
     # Получаем реферера
     referrer = await UserService.get_referrer(session, user)
     
     # Если у реферера есть финальное голосовое - отправляем
     if referrer and referrer.voice_quit_job_final_id:
-        await asyncio.sleep(0.5)
         await callback.message.answer_voice(voice=referrer.voice_quit_job_final_id)
     
-    # Отправляем кнопки
+    # Отправляем основной текст с кнопкой
     await callback.message.answer(
-        "Жду тебя в нашем клубе!❤️‍🔥",
+        PARTNER_QUIT_JOB_FINAL,
         reply_markup=InlineKeyboardMarkup(inline_keyboard=[
             [InlineKeyboardButton(text="📲 Открыть Систему", web_app=WebAppInfo(url="https://clubsmarttravel.vercel.app/?source=business"))]
-        ])
+        ]),
+        parse_mode="Markdown"
     )
     
     await state.set_state(UserStates.partner_quit_job_final)

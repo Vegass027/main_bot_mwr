@@ -159,29 +159,24 @@ async def travel_pay_less(callback: CallbackQuery, state: FSMContext, session: A
 Я собрал для тебя **реальные примеры** с нашей платформы в сравнении с Booking и Островком. Взгляни 👇"""
     
     try:
-        await callback.message.edit_text(pay_less_text)
-    except TelegramBadRequest as e:
-        if "message is not modified" in str(e) or "there is no text in the message to edit" in str(e):
-            # Если сообщение не изменилось или нет текста для редактирования, отправляем новое сообщение
-            await callback.message.answer(pay_less_text, parse_mode="Markdown")
-        else:
-            # Если другая ошибка BadRequest, пробрасываем дальше
-            raise
-    
+        await callback.message.delete()
+    except TelegramBadRequest:
+        pass  # Игнорируем ошибку, если сообщение уже удалено
+
     # Получаем реферера
     referrer = await UserService.get_referrer(session, user)
-    
-    # Если у реферера есть голосовое - отправляем
+
+    # Если у реферера есть голосовое - отправляем его первым
     if referrer and referrer.voice_pay_less_id:
-        await asyncio.sleep(0.5)
         await callback.message.answer_voice(voice=referrer.voice_pay_less_id)
-    
-    # Отправляем кнопку
+
+    # Отправляем основной текст с кнопкой
     await callback.message.answer(
-        "Ты должен это увидеть🤯",
+        pay_less_text,
         reply_markup=InlineKeyboardMarkup(inline_keyboard=[
             [InlineKeyboardButton(text="🔍 Показать примеры цен", web_app=WebAppInfo(url="https://clubsmarttravel.vercel.app/?source=travel"))]
-        ])
+        ]),
+        parse_mode="Markdown"
     )
     
     await state.set_state(UserStates.travel_pay_less)
@@ -218,29 +213,24 @@ async def travel_5star_3star(callback: CallbackQuery, state: FSMContext, session
 Жми кнопку ниже 👇"""
     
     try:
-        await callback.message.edit_text(five_star_text)
-    except TelegramBadRequest as e:
-        if "message is not modified" in str(e) or "there is no text in the message to edit" in str(e):
-            # Если сообщение не изменилось или нет текста для редактирования, отправляем новое сообщение
-            await callback.message.answer(five_star_text, parse_mode="Markdown")
-        else:
-            # Если другая ошибка BadRequest, пробрасываем дальше
-            raise
-    
+        await callback.message.delete()
+    except TelegramBadRequest:
+        pass  # Игнорируем ошибку, если сообщение уже удалено
+
     # Получаем реферера
     referrer = await UserService.get_referrer(session, user)
-    
-    # Если у реферера есть голосовое - отправляем
+
+    # Если у реферера есть голосовое - отправляем его первым
     if referrer and referrer.voice_5star_3star_id:
-        await asyncio.sleep(0.5)
         await callback.message.answer_voice(voice=referrer.voice_5star_3star_id)
-    
-    # Отправляем кнопку
+
+    # Отправляем основной текст с кнопкой
     await callback.message.answer(
-        "Ты только глянь🤩",
+        five_star_text,
         reply_markup=InlineKeyboardMarkup(inline_keyboard=[
             [InlineKeyboardButton(text="💎 Показать премиум отдых", web_app=WebAppInfo(url="https://clubsmarttravel.vercel.app/?source=travel"))]
-        ])
+        ]),
+        parse_mode="Markdown"
     )
     
     await state.set_state(UserStates.travel_5star_3star)
@@ -277,29 +267,24 @@ async def travel_more(callback: CallbackQuery, state: FSMContext, session: Async
 Жми кнопку, покажу механику подробнее 👇"""
     
     try:
-        await callback.message.edit_text(travel_more_text)
-    except TelegramBadRequest as e:
-        if "message is not modified" in str(e) or "there is no text in the message to edit" in str(e):
-            # Если сообщение не изменилось или нет текста для редактирования, отправляем новое сообщение
-            await callback.message.answer(travel_more_text, parse_mode="Markdown")
-        else:
-            # Если другая ошибка BadRequest, пробрасываем дальше
-            raise
-    
+        await callback.message.delete()
+    except TelegramBadRequest:
+        pass  # Игнорируем ошибку, если сообщение уже удалено
+
     # Получаем реферера
     referrer = await UserService.get_referrer(session, user)
-    
-    # Если у реферера есть голосовое - отправляем
+
+    # Если у реферера есть голосовое - отправляем его первым
     if referrer and referrer.voice_travel_more_id:
-        await asyncio.sleep(0.5)
         await callback.message.answer_voice(voice=referrer.voice_travel_more_id)
-    
-    # Отправляем кнопку
+
+    # Отправляем основной текст с кнопкой
     await callback.message.answer(
-        "Смотри👀",
+        travel_more_text,
         reply_markup=InlineKeyboardMarkup(inline_keyboard=[
             [InlineKeyboardButton(text="✈️ Как это работает?", web_app=WebAppInfo(url="https://clubsmarttravel.vercel.app/?source=travel"))]
-        ])
+        ]),
+        parse_mode="Markdown"
     )
     
     await state.set_state(UserStates.travel_more)
